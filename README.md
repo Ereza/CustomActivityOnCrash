@@ -6,13 +6,13 @@ Sample project to demonstrate how to launch a custom activity when your app cras
 How to use
 =====================
 
-This is just a sample. Take a look at it and implement it in your project as needed, making any tweaks you want in order to fit your needs.
+**This is just a sample.** Take a look at it and implement it in your project as needed, making any tweaks you want in order to fit your needs.
 
-This sample relies on the Thread.setDefaultUncaughtExceptionHandler method and AlarmManager to start a new PendingIntent to your Activity, then kills the current process. Look at the code and you will see how it works (it's all in the Application class).
+This sample relies on the `Thread.setDefaultUncaughtExceptionHandler` method and `AlarmManager` to start a new `PendingIntent` to your activity, then kills the current process. Look at the code and you will see how it works (it's all in the application class).
 
-The sample passes the stacktrace to the ErrorActivity, but you can customize it as you wish. Keep in mind that the Intent limits are around 1MB and you may get a TransactionTooLargeException. Reduce the passed data to fit those limits.
+The sample passes the stacktrace to the `ErrorActivity`, but you can customize it as you wish. Keep in mind that the `Intent` limits are around 1MB and you may get a `TransactionTooLargeException`. Reduce the passed data to fit those limits.
 
-If you already have Acra, Crashlytics or any similar library bundled into your app, it is likely that you can make them coexist. You'll just have to report the exception as a handled exception, or do it after the user takes action on the ErrorActivity.
+If you already have ACRA, Crashlytics or any similar library bundled into your app, it is likely that you can make them coexist. You'll just have to report the exception as a handled exception, or do it after the user takes action on the `ErrorActivity`.
 
 Disclaimers
 =====================
@@ -31,4 +31,3 @@ Contributing
 =====================
 
 I have limited time but any contribution in order to make this sample better will be welcome!
-
