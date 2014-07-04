@@ -8,9 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-/**
- * Created by ereza on 04/07/14.
- */
 public class ErrorActivity extends Activity {
 
     public final static String EXTRA_EXCEPTION = "EXCEPTION";
