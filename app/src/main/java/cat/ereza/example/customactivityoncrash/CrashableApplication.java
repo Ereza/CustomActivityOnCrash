@@ -13,16 +13,29 @@ import java.io.StringWriter;
 public class CrashableApplication extends Application {
 
     public final static String TAG = "CRASHABLE";
+    public final static int EXTRA_TIME_TO_WAIT_MILLIS = 200;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        //Initialize your error handlers as normal
+
+        //We define a default exception handler that just kills the process so it can be called from Crashlytics/ACRA
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                //You MUST do this to finish the process, otherwise you will be stuck in limbo.
+                Log.d(TAG, "Finishing process!");
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(0);
+            }
+        });
+
+        //Initialize your error handlers as normal, they will most likely keep a reference to the original exception handler
         //i.e., ACRA.init(this);
         //or Crashlytics.start(this);
 
-        //Keep a reference to the original handler if you plan to use it later (see comments below)
-        //final Thread.UncaughtExceptionHandler originalHandler = Thread.getDefaultUncaughtExceptionHandler();
+        //Keep a reference to the original handler to use it later, after handling the exception ourselves
+        final Thread.UncaughtExceptionHandler originalHandler = Thread.getDefaultUncaughtExceptionHandler();
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -38,22 +51,14 @@ public class CrashableApplication extends Application {
                 throwable.printStackTrace(pw);
                 intent.putExtra(ErrorActivity.EXTRA_EXCEPTION, sw.toString());
 
+                //We define an alarm to launch our new intent in very little time
+                //EXTRA_TIME_TO_WAIT_MILLIS is necessary to avoid launching it while it still has not finished (I know it's ugly...)
                 PendingIntent pendingIntent = PendingIntent.getActivity(CrashableApplication.this, 0, intent, 0);
                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), pendingIntent);
+                alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + EXTRA_TIME_TO_WAIT_MILLIS, pendingIntent);
 
-
-                //Log here your exception to any crash-reporting system if needed
-                //If you use Acra, you might want to call ACRA.getErrorReporter().handleException(throwable);
-                //If you use Crashlytics, you might want to call Crashlytics.logException(throwable);
-
-                //You can also call originalHandler.uncaughtException(thread, throwable), but
-                //you will probably get the system "App has stopped" dialog if you do so (depends on how the original handler handles the exception)
-
-                //You MUST do this to finish the process, otherwise you will be stuck in limbo.
-                Log.d(TAG, "Finishing process!");
-                System.exit(0);
-
+                //Call the original handler which will handle the exception as normal and then launch our own finishing handler (avoiding the "App has stopped" dialog)
+                originalHandler.uncaughtException(thread, throwable);
             }
         });
     }
