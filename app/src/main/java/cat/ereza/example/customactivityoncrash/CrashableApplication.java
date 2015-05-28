@@ -3,6 +3,7 @@ package cat.ereza.example.customactivityoncrash;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -52,49 +53,50 @@ public class CrashableApplication extends Application {
             }
         });
 
-        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                if (!(activity instanceof ErrorActivity)) {
-                    // Copied from ACRA:
-                    // Ignore ErrorActivity because we want the last
-                    // application Activity that was started so that we can
-                    // explicitly kill it off.
-                    lastActivityCreated = new WeakReference<>(activity);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+                @Override
+                public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                    if (!(activity instanceof ErrorActivity)) {
+                        // Copied from ACRA:
+                        // Ignore ErrorActivity because we want the last
+                        // application Activity that was started so that we can
+                        // explicitly kill it off.
+                        lastActivityCreated = new WeakReference<>(activity);
+                    }
                 }
-            }
 
-            @Override
-            public void onActivityStarted(Activity activity) {
-                //Do nothing
-            }
+                @Override
+                public void onActivityStarted(Activity activity) {
+                    //Do nothing
+                }
 
-            @Override
-            public void onActivityResumed(Activity activity) {
-                //Do nothing
-            }
+                @Override
+                public void onActivityResumed(Activity activity) {
+                    //Do nothing
+                }
 
-            @Override
-            public void onActivityPaused(Activity activity) {
-                //Do nothing
-            }
+                @Override
+                public void onActivityPaused(Activity activity) {
+                    //Do nothing
+                }
 
-            @Override
-            public void onActivityStopped(Activity activity) {
-                //Do nothing
-            }
+                @Override
+                public void onActivityStopped(Activity activity) {
+                    //Do nothing
+                }
 
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-                //Do nothing
-            }
+                @Override
+                public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+                    //Do nothing
+                }
 
-            @Override
-            public void onActivityDestroyed(Activity activity) {
-                //Do nothing
-            }
-        });
-
+                @Override
+                public void onActivityDestroyed(Activity activity) {
+                    //Do nothing
+                }
+            });
+        }
         //Initialize your error handlers as normal, they will most likely keep a reference to the original exception handler
         //i.e., ACRA.init(this);
         //or Crashlytics.start(this);
