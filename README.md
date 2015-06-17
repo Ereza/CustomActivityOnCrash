@@ -1,21 +1,22 @@
-CustomActivityOnCrash
-=====================
+# Custom Activity On Crash library
 
-Sample Android project to demonstrate how to launch a custom activity when your app crashes, instead of showing the hated "App has stopped unexpectedly" dialog.
+This library allows launching a custom activity when the app crashes, instead of showing the hated "App has stopped unexpectedly" dialog.
 
-How to use
-=====================
+## How to use
 
-**This is just a sample.** Take a look at it and implement it in your project as needed, making any tweaks you want in order to fit your needs.
+If you already have ACRA, Crashlytics or any similar library bundled into your app, you can make them coexist, but the CustomActivityOnCrash initialization must be done first. The exceptions will get reported just like they usually do.
 
-This sample relies on the `Thread.setDefaultUncaughtExceptionHandler` method and launches a new intent to your error activity, then kills the current process. Look at the code and you will see how it works (it's all in the application class).
+## Inner workings
 
-The sample passes the stack trace to the `ErrorActivity`, but you can customize it as you wish. Keep in mind that the `Intent` limits are around 1MB and you may get a `TransactionTooLargeException`. Reduce the passed data to fit those limits.
+This library relies on the `Thread.setDefaultUncaughtExceptionHandler` method. When an exception is caught by the `UncaughtExceptionHandler`, it captures the stack trace and launches a new intent to your custom error activity, then kills the current process. Look at the code and you will see how it works (it's just a single class).
 
-If you already have ACRA, Crashlytics or any similar library bundled into your app, it is likely that you can make them coexist. The exceptions will get reported just like they usually do.
+The inner workings are based on ACRA's dialog reporting mode with some minor tweaks.
 
-Disclaimers
-=====================
+## Using Proguard?
+
+Meh
+
+## Disclaimers
 
 I have tested this on the following devices:
 
@@ -35,7 +36,6 @@ It works fine on those devices, but I haven't applied it to any production code,
 * There is no guarantee that this sample app will make you toast for breakfast :)
 * Of course, no refunds accepted! ;)
 
-Contributing
-=====================
+## Contributing
 
 I have limited time but any contribution in order to make this sample better will be welcome!

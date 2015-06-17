@@ -28,8 +28,13 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        debug {
+            minifyEnabled true
+            proguardFiles 'proguard-rules.pro'
+        }
         release {
-            minifyEnabled false
+            minifyEnabled true
+            proguardFiles 'proguard-rules.pro'
         }
     }
 }

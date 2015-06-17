@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2015 Eduard Ereza Martínez
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cat.ereza.example.customactivityoncrash">
-    <uses-permission android:name="android.permission.INTERNET">
-    </uses-permission>
+
     <application
         android:name="cat.ereza.customactivityoncrash.sample.SampleCrashableApplication"
         android:icon="@mipmap/ic_launcher"
@@ -33,8 +31,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="cat.ereza.customactivityoncrash.sample.ErrorActivity"
-            android:process=":error_report"/>
+        <activity
+            android:name="cat.ereza.customactivityoncrash.sample.ErrorActivity"
+            android:process=":error_report" />
     </application>
 
 </manifest>

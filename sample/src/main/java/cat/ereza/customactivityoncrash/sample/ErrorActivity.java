@@ -19,7 +19,6 @@ package cat.ereza.customactivityoncrash.sample;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -33,7 +32,6 @@ public class ErrorActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(SampleCrashableApplication.TAG, "Entering ErrorActivity");
 
         setTitle(R.string.error_title);
         setContentView(R.layout.activity_error);
@@ -51,7 +49,6 @@ public class ErrorActivity extends Activity {
             public void onClick(View view) {
                 Intent intent = new Intent(ErrorActivity.this, MainActivity.class);
                 finish();
-                Log.d(SampleCrashableApplication.TAG, "Exiting ErrorActivity");
                 startActivity(intent);
             }
         });

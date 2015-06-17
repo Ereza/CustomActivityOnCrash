@@ -22,8 +22,6 @@ import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 public class SampleCrashableApplication extends Application {
 
-    public final static String TAG = "SampleCrashableApp";
-
     @Override
     public void onCreate() {
         super.onCreate();

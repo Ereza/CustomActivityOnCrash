@@ -112,31 +112,35 @@ public class CustomActivityOnCrash {
                     Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                         @Override
                         public void uncaughtException(Thread thread, final Throwable throwable) {
-                            Log.d(TAG, "App has crashed, executing UncaughtExceptionHandler", throwable);
+                            Log.e(TAG, "App has crashed, executing UncaughtExceptionHandler", throwable);
                             new Thread() {
                                 @Override
                                 public void run() {
-                                    if (startActivityEvenIfInBackground || !isInBackground) {
-                                        final Intent intent = new Intent(application, activityClass);
-                                        if (exceptionParameter != null && !exceptionParameter.equals("")) {
-                                            StringWriter sw = new StringWriter();
-                                            PrintWriter pw = new PrintWriter(sw);
-                                            throwable.printStackTrace(pw);
-                                            String stackTraceString = sw.toString();
+                                    if (isStackTraceLikelyConflictive(throwable, activityClass)) {
+                                        Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
+                                    } else {
+                                        if (startActivityEvenIfInBackground || !isInBackground) {
+                                            final Intent intent = new Intent(application, activityClass);
+                                            if (exceptionParameter != null && !exceptionParameter.equals("")) {
+                                                StringWriter sw = new StringWriter();
+                                                PrintWriter pw = new PrintWriter(sw);
+                                                throwable.printStackTrace(pw);
+                                                String stackTraceString = sw.toString();
 
-                                            //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
-                                            //The limit is 1MB on Android but some devices seem to have it lower.
-                                            //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
-                                            //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
-                                            if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
-                                                String disclaimer = " [stack trace too large]";
-                                                stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
+                                                //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
+                                                //The limit is 1MB on Android but some devices seem to have it lower.
+                                                //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
+                                                //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
+                                                if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
+                                                    String disclaimer = " [stack trace too large]";
+                                                    stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
+                                                }
+
+                                                intent.putExtra(exceptionParameter, stackTraceString);
                                             }
-
-                                            intent.putExtra(exceptionParameter, stackTraceString);
+                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            application.startActivity(intent);
                                         }
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        application.startActivity(intent);
                                     }
                                     final Activity lastActivity = lastActivityCreated.get();
                                     if (lastActivity != null) {
@@ -205,10 +209,30 @@ public class CustomActivityOnCrash {
                 }
 
                 Log.i(TAG, "CustomActivityOnCrash has been installed.");
-
             }
         } catch (Throwable t) {
             Log.e(TAG, "An unknown error occurred when initializing CustomActivityOnCrash, it may not have been installed. Please report this as a bug if needed.", t);
         }
+    }
+
+    /**
+     * Checks if the stack trace that just crashed is conflictive. This is true in the following scenarios:
+     * - The application has crashed while initializing (handleBindApplication is in the stack)
+     * - The error activity has crashed (activityClass is in the stack)
+     *
+     * @param throwable     The throwable from which the stack trace will be checked
+     * @param activityClass The activity class to launch when the app crashes
+     * @return true if this stack trace is conflictive and the activity must not be launched, false otherwise
+     */
+    private static boolean isStackTraceLikelyConflictive(Throwable throwable, Class<? extends Activity> activityClass) {
+        do {
+            StackTraceElement[] stackTrace = throwable.getStackTrace();
+            for (StackTraceElement element : stackTrace) {
+                if ((element.getClassName().equals("android.app.ActivityThread") && element.getMethodName().equals("handleBindApplication")) || element.getClassName().equals(activityClass.getName())) {
+                    return true;
+                }
+            }
+        } while ((throwable = throwable.getCause()) != null);
+        return false;
     }
 }

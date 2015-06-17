@@ -16,6 +16,6 @@
 
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Light" />
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
 
 </resources>
