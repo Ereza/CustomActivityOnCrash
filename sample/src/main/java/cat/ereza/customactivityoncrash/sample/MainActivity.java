@@ -9,12 +9,7 @@ import android.widget.Button;
 
 import cat.ereza.example.customactivityoncrash.R;
 
-
 public class MainActivity extends Activity {
-
-    Button crashMainThreadButton;
-    Button crashBgThreadButton;
-    Button crashWithDelayButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,9 +17,9 @@ public class MainActivity extends Activity {
         Log.d(SampleCrashableApplication.TAG, "Entering MainActivity");
         setContentView(R.layout.activity_main);
 
-        crashMainThreadButton = (Button) findViewById(R.id.button_crash_main_thread);
-        crashBgThreadButton = (Button) findViewById(R.id.button_crash_bg_thread);
-        crashWithDelayButton = (Button) findViewById(R.id.button_crash_with_delay);
+        Button crashMainThreadButton = (Button) findViewById(R.id.button_crash_main_thread);
+        Button crashBgThreadButton = (Button) findViewById(R.id.button_crash_bg_thread);
+        Button crashWithDelayButton = (Button) findViewById(R.id.button_crash_with_delay);
 
         crashMainThreadButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cat.ereza.example.customactivityoncrash">
-
+    <uses-permission android:name="android.permission.INTERNET">
+    </uses-permission>
     <application
         android:name="cat.ereza.customactivityoncrash.sample.SampleCrashableApplication"
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="cat.ereza.customactivityoncrash.sample.ErrorActivity" />
+        <activity android:name="cat.ereza.customactivityoncrash.sample.ErrorActivity"
+            android:process=":error_report"/>
     </application>
 
 </manifest>

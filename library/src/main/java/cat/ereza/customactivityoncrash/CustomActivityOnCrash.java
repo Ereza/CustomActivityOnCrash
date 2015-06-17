@@ -12,13 +12,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 
-/**
- * Created by ereza on 17/06/15.
- */
 public class CustomActivityOnCrash {
-    public final static String TAG = "CustomActivityOnCrash";
-    public static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
-    public static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android";
+    private final static String TAG = "CustomActivityOnCrash";
+    private static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
+    private static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android.internal.os";
+    private static final int MAX_STACK_TRACE_SIZE = 131071; //128 KB - 1
 
     private static WeakReference<Activity> lastActivityCreated = new WeakReference<>(null);
     private static Application application;
@@ -50,7 +48,7 @@ public class CustomActivityOnCrash {
      *
      * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
      * @param activityClass                   Activity to launch when the app crashes. Must not be null.
-     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise.
+     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
      */
     public static void install(Context context, final Class<? extends Activity> activityClass, boolean startActivityEvenIfInBackground) {
         installInternal(context, activityClass, null, startActivityEvenIfInBackground, false);
@@ -62,7 +60,7 @@ public class CustomActivityOnCrash {
      * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
      * @param activityClass                   Activity to launch when the app crashes. Must not be null.
      * @param exceptionParameter              String to use as a Intent extra to pass the stack trace to the launched activity. Must not be null.
-     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise.
+     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
      */
     public static void install(Context context, final Class<? extends Activity> activityClass, final String exceptionParameter, boolean startActivityEvenIfInBackground) {
         installInternal(context, activityClass, exceptionParameter, startActivityEvenIfInBackground, true);
@@ -75,6 +73,9 @@ public class CustomActivityOnCrash {
             } else if (activityClass == null) {
                 Log.e(TAG, "activityClass is null! Not installing...");
             } else {
+                if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    Log.w(TAG, "CustomActivityOnCrash will be installed, but may not be reliable in API lower than 14");
+                }
                 if (reportExceptionParameter && (exceptionParameter == null || exceptionParameter.equals(""))) {
                     Log.e(TAG, "exceptionParameter is null or empty! Will install, but will not pass any data to the launched activity");
                 }
@@ -86,7 +87,7 @@ public class CustomActivityOnCrash {
                     Log.e(TAG, "You already have installed CustomActivityOnCrash, doing nothing!");
                 } else {
                     if (oldHandler != null && !oldHandler.getClass().getName().startsWith(DEFAULT_HANDLER_PACKAGE_NAME)) {
-                        Log.e(TAG, "You already have an UncaughtExceptionHandler, are you sure this is correct? If you use ACRA, Crashlytics or similar libraries, you must initialize them AFTER CustomActivityOnCrash! Installing anyway, but your original handler will not be called.");
+                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use ACRA, Crashlytics or similar libraries, you must initialize them AFTER CustomActivityOnCrash! Installing anyway, but your original handler will not be called.");
                     }
 
                     application = (Application) context.getApplicationContext();
@@ -96,25 +97,36 @@ public class CustomActivityOnCrash {
                         @Override
                         public void uncaughtException(Thread thread, final Throwable throwable) {
                             Log.d(TAG, "App has crashed, executing UncaughtExceptionHandler", throwable);
-
                             new Thread() {
                                 @Override
                                 public void run() {
                                     if (startActivityEvenIfInBackground || !isInBackground) {
                                         final Intent intent = new Intent(application, activityClass);
+                                        if (exceptionParameter != null && !exceptionParameter.equals("")) {
+                                            StringWriter sw = new StringWriter();
+                                            PrintWriter pw = new PrintWriter(sw);
+                                            throwable.printStackTrace(pw);
+                                            String stackTraceString = sw.toString();
+
+                                            //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
+                                            //The limit is 1MB on Android but some devices seem to have it lower.
+                                            //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
+                                            //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
+                                            if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
+                                                String disclaimer = " [stack trace too large]";
+                                                stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
+                                            }
+
+                                            intent.putExtra(exceptionParameter, stackTraceString);
+                                        }
                                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                                        //Change this to anything you need to treat the error and pass any parameters you like...
-                                        StringWriter sw = new StringWriter();
-                                        PrintWriter pw = new PrintWriter(sw);
-                                        throwable.printStackTrace(pw);
-                                        intent.putExtra(exceptionParameter, sw.toString());
-
                                         application.startActivity(intent);
                                     }
                                     final Activity lastActivity = lastActivityCreated.get();
                                     if (lastActivity != null) {
-                                        //We finish the activity, this solves a bug, see https://github.com/ACRA/acra/issues/42
+                                        //We finish the activity, this solves a bug which causes infinite recursion.
+                                        //This is unsolvable in API<14, so beware!
+                                        //See: https://github.com/ACRA/acra/issues/42
                                         lastActivity.finish();
                                         lastActivityCreated.clear();
                                     }
@@ -124,14 +136,13 @@ public class CustomActivityOnCrash {
                             }.start();
                         }
                     });
-
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                             int currentlyStartedActivities = 0;
 
                             @Override
                             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                                if (!(activity.getClass() == activityClass)) {
+                                if (activity.getClass() != activityClass) {
                                     // Copied from ACRA:
                                     // Ignore activityClass because we want the last
                                     // application Activity that was started so that we can
@@ -175,9 +186,10 @@ public class CustomActivityOnCrash {
                             }
                         });
                     }
-
-                    Log.i(TAG, "CustomActivityOnCrash has been installed.");
                 }
+
+                Log.i(TAG, "CustomActivityOnCrash has been installed.");
+
             }
         } catch (Throwable t) {
             Log.e(TAG, "An unknown error occurred when initializing CustomActivityOnCrash, it may not have been installed. Please report this as a bug if needed.", t);

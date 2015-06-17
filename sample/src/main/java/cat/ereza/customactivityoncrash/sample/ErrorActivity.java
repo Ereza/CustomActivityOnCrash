@@ -14,9 +14,6 @@ public class ErrorActivity extends Activity {
 
     public final static String EXTRA_EXCEPTION = "EXCEPTION";
 
-    TextView errorDetailsText;
-    Button restartButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,8 +26,8 @@ public class ErrorActivity extends Activity {
         //don't forget to finish the activity, otherwise you will get the ErrorActivity
         //on the activity stack and it will be visible again under some circumstances.
 
-        errorDetailsText = (TextView) findViewById(R.id.error_details);
-        restartButton = (Button) findViewById(R.id.restart_button);
+        TextView errorDetailsText = (TextView) findViewById(R.id.error_details);
+        Button restartButton = (Button) findViewById(R.id.restart_button);
 
         errorDetailsText.setText(getIntent().getStringExtra(EXTRA_EXCEPTION));
         restartButton.setOnClickListener(new View.OnClickListener() {
