@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Custom Activity on Crash</string>
+    <string name="app_name">Custom Activity on Crash Sample</string>
     <string name="hello">Hello! Press one of the following buttons to crash the app:</string>
     <string name="crash_main_thread">Crash main thread</string>
     <string name="crash_background_thread">Crash background thread</string>
-    <string name="crash_several_times">Crash several times (bg thread)</string>
+    <string name="crash_with_delay">Crash with delay (5s)</string>
     <string name="error_occurred">An error occurred. We\'re deeply sorry.</string>
     <string name="error_details">Error details:</string>
     <string name="unknown_exception">Unknown exception</string>

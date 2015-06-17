@@ -3,13 +3,13 @@
     package="cat.ereza.example.customactivityoncrash">
 
     <application
-        android:name="cat.ereza.example.customactivityoncrash.CrashableApplication"
+        android:name="cat.ereza.customactivityoncrash.sample.SampleCrashableApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name="cat.ereza.example.customactivityoncrash.MainActivity"
+            android:name="cat.ereza.customactivityoncrash.sample.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="cat.ereza.example.customactivityoncrash.ErrorActivity" />
+        <activity android:name="cat.ereza.customactivityoncrash.sample.ErrorActivity" />
     </application>
 
 </manifest>

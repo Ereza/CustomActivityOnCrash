@@ -29,9 +29,9 @@
         android:text="@string/crash_background_thread" />
 
     <Button
-        android:id="@+id/button_crash_several_times"
+        android:id="@+id/button_crash_with_delay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/crash_several_times" />
+        android:text="@string/crash_with_delay" />
 
 </LinearLayout>
