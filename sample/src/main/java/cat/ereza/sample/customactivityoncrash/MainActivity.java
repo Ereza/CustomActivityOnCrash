@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package cat.ereza.customactivityoncrash.sample;
+package cat.ereza.sample.customactivityoncrash;
 
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-
-import cat.ereza.example.customactivityoncrash.R;
 
 public class MainActivity extends Activity {
 

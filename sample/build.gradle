@@ -21,7 +21,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "cat.ereza.customactivityoncrash.sample"
+        applicationId "cat.ereza.sample.customactivityoncrash"
         minSdkVersion 3
         targetSdkVersion 22
         versionCode 1

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cat.ereza.customactivityoncrash.sample;
+package cat.ereza.sample.customactivityoncrash;
 
 import android.app.Application;
 

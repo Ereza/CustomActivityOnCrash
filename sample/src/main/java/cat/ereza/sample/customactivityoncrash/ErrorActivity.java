@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cat.ereza.customactivityoncrash.sample;
+package cat.ereza.sample.customactivityoncrash;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -22,8 +22,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import cat.ereza.example.customactivityoncrash.R;
 
 public class ErrorActivity extends Activity {
 
