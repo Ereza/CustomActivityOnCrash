@@ -65,8 +65,8 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
 ## Incompatibilities
 
 * The CustomActivityOnCrash handler will not be called in these cases:
-** With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
-** With any other custom `UncaughtExceptionHandler` set after initializing the library, that does not call back to the original handler.
+    * With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
+    * With any other custom `UncaughtExceptionHandler` set after initializing the library, that does not call back to the original handler.
 * Your `UncaughtExceptionHandler` will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be done **after** CustomActivityOnCrash initialization).
 * On some rare cases on devices with API<14, the app may enter a restart loop.
 
