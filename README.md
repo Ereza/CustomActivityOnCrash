@@ -18,7 +18,7 @@ This library allows launching a custom activity when the app crashes, instead of
 ### Make it work
 
 1. Add a custom activity that will be your error activity. Specify in it this additional parameter: `process=":error_report"`.
-2. On your application class, add this snippet after `super.onCreate()`:
+2. On your application class, use this snippet:
 ```java
     @Override
     public void onCreate() {
@@ -44,6 +44,8 @@ Make the app crash by using something like this on your code:
 ```java
 throw new RuntimeException("Boom!");
 ```
+
+Your custom error activity should show up, instead of the system dialog.
 
 ## Using Proguard?
 
