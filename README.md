@@ -4,38 +4,76 @@ This library allows launching a custom activity when the app crashes, instead of
 
 ## How to use
 
-If you already have ACRA, Crashlytics or any similar library bundled into your app, you can make them coexist, but the CustomActivityOnCrash initialization must be done first. The exceptions will get reported just like they usually do.
+### Add a dependency
 
-## Inner workings
+*Option 1: Gradle dependency:*
 
-This library relies on the `Thread.setDefaultUncaughtExceptionHandler` method. When an exception is caught by the `UncaughtExceptionHandler`, it captures the stack trace and launches a new intent to your custom error activity, then kills the current process. Look at the code and you will see how it works (it's just a single class).
+(Still pending submission to Maven Central)
 
-The inner workings are based on ACRA's dialog reporting mode with some minor tweaks.
+*Option 2: Manually:*
+
+1. Download the source code and import the `library` folder as an Android Library Module in Android Studio.
+2. Add a dependency on your project to that module.
+
+### Make it work
+
+1. Add a custom activity that will be your error activity. Specify in it this additional parameter: `process=":error_report"`.
+2. On your application class, add this snippet after `super.onCreate()`:
+```
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        //Install CustomActivityOnCrash
+        CustomActivityOnCrash.init(this, ErrorActivity.class, true);
+
+        //Now initialize your error handlers as normal
+        //i.e., ACRA.init(this);
+        //or Crashlytics.start(this);
+    }
+```
+3. (Optional) On your error activity, use `getIntent().getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE)` to retrieve the stack trace and display it if you wish.
+
+*WARNING!* As you see, if you already have ACRA, Crashlytics or any similar library bundled into your app, you can make them coexist, but the CustomActivityOnCrash initialization *must* be done first.
+
+### Test it
+
+Make the app crash by using something like: `throw new RuntimeException("Boom!");`
 
 ## Using Proguard?
 
-Meh
+No need to add special rules, the library should work even with obfuscation.
+
+## Inner workings
+
+This library relies on the `Thread.setDefaultUncaughtExceptionHandler` method.
+When an exception is caught by the `UncaughtExceptionHandler` it does the following:
+
+1. Captures the stack trace that caused the crash
+2. Launches a new intent to your custom error activity passing the stacktrace as an extra.
+3. Kills the current process.
+
+The inner workings are based on ACRA's dialog reporting mode with some minor tweaks. Look at the code if you need more detail about how it works.
+
+## Incompatibilities
+
+* The CustomActivityOnCrash handler will not be called in these cases:
+** With ACRA enabled and reporting mode set to TOAST or DIALOG.
+** With any other custom UncaughtExceptionHandler set after initializing the library, that does not call back to the original handler.
+* Your UncaughtExceptionHandler will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be *after* CustomActivityOnCrash initialization).
+* On some rare cases on devices with API<14, the app may enter a restart loop.
 
 ## Disclaimers
 
-I have tested this on the following devices:
-
-* HTC One M8, Android 4.4
-* Samsung Galaxy S4 mini (GT-I9195), Android 4.4
-* Samsung Galaxy A3 (SM-A300FU), Android 4.4
-* Nexus 5, Android 5.0
-* Nexus 5, Android 5.1
-
-It works fine on those devices, but I haven't applied it to any production code, so be aware that errors may arise.
-
-* There is no guarantee that this will work on your device
-* There is no guarantee that this will work on Android <4.0.3, but maybe it does (I haven't tried it, I currently develop for API 15+)
-* This will most likely not work if your app deals with any native libraries.
-* Make sure that your error-handling activities and application class initialization don't crash ever! If they do, you'll end up in an endless loop (although you could try to filter errors from those classes when handling the Throwable).
-* This does not avoid ANRs from happening, they will be handled as normal.
-* There is no guarantee that this sample app will make you toast for breakfast :)
+* This will not avoid ANRs from happening.
+* This will not catch native errors.
+* There is no guarantee that this will work on every device.
+* If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases)
+* This library will make you toast for breakfast :)
 * Of course, no refunds accepted! ;)
 
-## Contributing
+## Contributing & license
 
-I have limited time but any contribution in order to make this sample better will be welcome!
+Any contribution in order to make this library better will be welcome!
+
+The library is licensed under the Apache License 2.0.

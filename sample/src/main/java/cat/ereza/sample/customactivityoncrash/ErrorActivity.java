@@ -23,9 +23,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class ErrorActivity extends Activity {
+import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
-    public final static String EXTRA_EXCEPTION = "EXCEPTION";
+public class ErrorActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class ErrorActivity extends Activity {
         TextView errorDetailsText = (TextView) findViewById(R.id.error_details);
         Button restartButton = (Button) findViewById(R.id.restart_button);
 
-        errorDetailsText.setText(getIntent().getStringExtra(EXTRA_EXCEPTION));
+        errorDetailsText.setText(getIntent().getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE));
         restartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

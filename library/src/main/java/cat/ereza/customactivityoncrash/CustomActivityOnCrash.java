@@ -29,6 +29,8 @@ import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 
 public class CustomActivityOnCrash {
+    public static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TACE";
+
     private final static String TAG = "CustomActivityOnCrash";
     private static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
     private static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android.internal.os";
@@ -39,71 +41,52 @@ public class CustomActivityOnCrash {
     private static boolean isInBackground = false;
 
     /**
-     * Installs CustomActivityOnCrash on the application.
-     *
-     * @param context       Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param activityClass Activity to launch when the app crashes. Must not be null.
-     */
-    public static void install(Context context, final Class<? extends Activity> activityClass) {
-        installInternal(context, activityClass, null, true, false);
-    }
-
-    /**
-     * Installs CustomActivityOnCrash on the application.
+     * Initializes CustomActivityOnCrash on the application.
      *
      * @param context            Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param activityClass      Activity to launch when the app crashes. Must not be null.
-     * @param exceptionParameter String to use as a Intent extra to pass the stack trace to the launched activity. Must not be null.
+     * @param errorActivityClass Activity to launch when the app crashes. Must not be null.
      */
-    public static void install(Context context, final Class<? extends Activity> activityClass, final String exceptionParameter) {
-        installInternal(context, activityClass, exceptionParameter, true, true);
+    public static void init(Context context, final Class<? extends Activity> errorActivityClass) {
+        initInternal(context, errorActivityClass, true);
     }
 
     /**
-     * Installs CustomActivityOnCrash on the application.
+     * Initializes CustomActivityOnCrash on the application.
      *
      * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param activityClass                   Activity to launch when the app crashes. Must not be null.
+     * @param errorActivityClass              Activity to launch when the app crashes. Must not be null.
      * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
      */
-    public static void install(Context context, final Class<? extends Activity> activityClass, boolean startActivityEvenIfInBackground) {
-        installInternal(context, activityClass, null, startActivityEvenIfInBackground, false);
+    public static void init(Context context, final Class<? extends Activity> errorActivityClass, boolean startActivityEvenIfInBackground) {
+        initInternal(context, errorActivityClass, startActivityEvenIfInBackground);
     }
 
     /**
-     * Installs CustomActivityOnCrash on the application.
+     * INTERNAL method that initializes CustomActivityOnCrash on the application.
      *
      * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param activityClass                   Activity to launch when the app crashes. Must not be null.
-     * @param exceptionParameter              String to use as a Intent extra to pass the stack trace to the launched activity. Must not be null.
+     * @param errorActivityClass              Activity to launch when the app crashes. Must not be null.
      * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
      */
-    public static void install(Context context, final Class<? extends Activity> activityClass, final String exceptionParameter, boolean startActivityEvenIfInBackground) {
-        installInternal(context, activityClass, exceptionParameter, startActivityEvenIfInBackground, true);
-    }
-
-    private static void installInternal(Context context, final Class<? extends Activity> activityClass, final String exceptionParameter, final boolean startActivityEvenIfInBackground, boolean reportExceptionParameter) {
+    private static void initInternal(Context context, final Class<? extends Activity> errorActivityClass, final boolean startActivityEvenIfInBackground) {
         try {
             if (context == null) {
-                Log.e(TAG, "context is null! Not installing...");
-            } else if (activityClass == null) {
-                Log.e(TAG, "activityClass is null! Not installing...");
+                Log.e(TAG, "Initialization failed: context is null!");
+            } else if (errorActivityClass == null) {
+                Log.e(TAG, "Initialization failed: errorActivityClass is null!");
             } else {
                 if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    Log.w(TAG, "CustomActivityOnCrash will be installed, but may not be reliable in API lower than 14");
-                }
-                if (reportExceptionParameter && (exceptionParameter == null || exceptionParameter.equals(""))) {
-                    Log.e(TAG, "exceptionParameter is null or empty! Will install, but will not pass any data to the launched activity");
+                    Log.w(TAG, "CustomActivityOnCrash will be initialized, but may not be reliable in API lower than 14");
                 }
 
                 //INSTALL!
                 Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
 
                 if (oldHandler != null && oldHandler.getClass().getName().startsWith(CAOC_HANDLER_PACKAGE_NAME)) {
-                    Log.e(TAG, "You already have installed CustomActivityOnCrash, doing nothing!");
+                    Log.e(TAG, "You have already initialized CustomActivityOnCrash, doing nothing!");
                 } else {
                     if (oldHandler != null && !oldHandler.getClass().getName().startsWith(DEFAULT_HANDLER_PACKAGE_NAME)) {
-                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use ACRA, Crashlytics or similar libraries, you must initialize them AFTER CustomActivityOnCrash! Installing anyway, but your original handler will not be called.");
+                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use ACRA, Crashlytics or similar libraries, you must initialize them AFTER CustomActivityOnCrash! Initializing anyway, but your original handler will not be called.");
                     }
 
                     application = (Application) context.getApplicationContext();
@@ -112,32 +95,30 @@ public class CustomActivityOnCrash {
                     Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                         @Override
                         public void uncaughtException(Thread thread, final Throwable throwable) {
-                            Log.e(TAG, "App has crashed, executing UncaughtExceptionHandler", throwable);
+                            Log.e(TAG, "App has crashed, executing CustomActivityOnCrash's UncaughtExceptionHandler", throwable);
                             new Thread() {
                                 @Override
                                 public void run() {
-                                    if (isStackTraceLikelyConflictive(throwable, activityClass)) {
+                                    if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
                                         Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
                                     } else {
                                         if (startActivityEvenIfInBackground || !isInBackground) {
-                                            final Intent intent = new Intent(application, activityClass);
-                                            if (exceptionParameter != null && !exceptionParameter.equals("")) {
-                                                StringWriter sw = new StringWriter();
-                                                PrintWriter pw = new PrintWriter(sw);
-                                                throwable.printStackTrace(pw);
-                                                String stackTraceString = sw.toString();
+                                            final Intent intent = new Intent(application, errorActivityClass);
+                                            StringWriter sw = new StringWriter();
+                                            PrintWriter pw = new PrintWriter(sw);
+                                            throwable.printStackTrace(pw);
+                                            String stackTraceString = sw.toString();
 
-                                                //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
-                                                //The limit is 1MB on Android but some devices seem to have it lower.
-                                                //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
-                                                //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
-                                                if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
-                                                    String disclaimer = " [stack trace too large]";
-                                                    stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
-                                                }
-
-                                                intent.putExtra(exceptionParameter, stackTraceString);
+                                            //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
+                                            //The limit is 1MB on Android but some devices seem to have it lower.
+                                            //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
+                                            //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
+                                            if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
+                                                String disclaimer = " [stack trace too large]";
+                                                stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
                                             }
+
+                                            intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
                                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                             application.startActivity(intent);
                                         }
@@ -162,7 +143,7 @@ public class CustomActivityOnCrash {
 
                             @Override
                             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-                                if (activity.getClass() != activityClass) {
+                                if (activity.getClass() != errorActivityClass) {
                                     // Copied from ACRA:
                                     // Ignore activityClass because we want the last
                                     // application Activity that was started so that we can
@@ -208,15 +189,15 @@ public class CustomActivityOnCrash {
                     }
                 }
 
-                Log.i(TAG, "CustomActivityOnCrash has been installed.");
+                Log.i(TAG, "CustomActivityOnCrash has been initialized.");
             }
         } catch (Throwable t) {
-            Log.e(TAG, "An unknown error occurred when initializing CustomActivityOnCrash, it may not have been installed. Please report this as a bug if needed.", t);
+            Log.e(TAG, "An unknown error occurred when initializing CustomActivityOnCrash, it may not have been properly initialized. Please report this as a bug if needed.", t);
         }
     }
 
     /**
-     * Checks if the stack trace that just crashed is conflictive. This is true in the following scenarios:
+     * INTERNAL method that checks if the stack trace that just crashed is conflictive. This is true in the following scenarios:
      * - The application has crashed while initializing (handleBindApplication is in the stack)
      * - The error activity has crashed (activityClass is in the stack)
      *
