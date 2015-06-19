@@ -96,45 +96,41 @@ public class CustomActivityOnCrash {
                         @Override
                         public void uncaughtException(Thread thread, final Throwable throwable) {
                             Log.e(TAG, "App has crashed, executing CustomActivityOnCrash's UncaughtExceptionHandler", throwable);
-                            new Thread() {
-                                @Override
-                                public void run() {
-                                    if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
-                                        Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
-                                    } else {
-                                        if (startActivityEvenIfInBackground || !isInBackground) {
-                                            final Intent intent = new Intent(application, errorActivityClass);
-                                            StringWriter sw = new StringWriter();
-                                            PrintWriter pw = new PrintWriter(sw);
-                                            throwable.printStackTrace(pw);
-                                            String stackTraceString = sw.toString();
 
-                                            //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
-                                            //The limit is 1MB on Android but some devices seem to have it lower.
-                                            //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
-                                            //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
-                                            if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
-                                                String disclaimer = " [stack trace too large]";
-                                                stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
-                                            }
+                            if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
+                                Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
+                            } else {
+                                if (startActivityEvenIfInBackground || !isInBackground) {
+                                    final Intent intent = new Intent(application, errorActivityClass);
+                                    StringWriter sw = new StringWriter();
+                                    PrintWriter pw = new PrintWriter(sw);
+                                    throwable.printStackTrace(pw);
+                                    String stackTraceString = sw.toString();
 
-                                            intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
-                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            application.startActivity(intent);
-                                        }
+                                    //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
+                                    //The limit is 1MB on Android but some devices seem to have it lower.
+                                    //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
+                                    //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
+                                    if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
+                                        String disclaimer = " [stack trace too large]";
+                                        stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
                                     }
-                                    final Activity lastActivity = lastActivityCreated.get();
-                                    if (lastActivity != null) {
-                                        //We finish the activity, this solves a bug which causes infinite recursion.
-                                        //This is unsolvable in API<14, so beware!
-                                        //See: https://github.com/ACRA/acra/issues/42
-                                        lastActivity.finish();
-                                        lastActivityCreated.clear();
-                                    }
-                                    android.os.Process.killProcess(android.os.Process.myPid());
-                                    System.exit(10);
+
+                                    intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    application.startActivity(intent);
                                 }
-                            }.start();
+                            }
+                            final Activity lastActivity = lastActivityCreated.get();
+                            if (lastActivity != null) {
+                                //We finish the activity, this solves a bug which causes infinite recursion.
+                                //This is unsolvable in API<14, so beware!
+                                //See: https://github.com/ACRA/acra/issues/42
+                                lastActivity.finish();
+                                lastActivityCreated.clear();
+                            }
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                            System.exit(10);
                         }
                     });
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
