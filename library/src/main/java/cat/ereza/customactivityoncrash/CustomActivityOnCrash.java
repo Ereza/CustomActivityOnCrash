@@ -16,6 +16,7 @@
 
 package cat.ereza.customactivityoncrash;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -28,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 
+@SuppressLint("NewApi")
 public class CustomActivityOnCrash {
     public static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TACE";
 

@@ -8,7 +8,12 @@ This library allows launching a custom activity when the app crashes, instead of
 
 **Option 1: Gradle dependency:**
 
-(Still pending submission to Maven Central)
+Add the following dependency to your build.gradle:
+```gradle
+dependencies{
+    compile 'cat.ereza:customactivityoncrash:1.0.1'
+}
+```
 
 **Option 2: Manually:**
 
@@ -17,7 +22,7 @@ This library allows launching a custom activity when the app crashes, instead of
 
 ### Make it work
 
-1. Add a custom activity that will be your error activity. Specify in it this additional parameter: `process=":error_report"`.
+1. Add a custom activity that will be your error activity. Add this additional parameter to the activity declaration in the manifest: `process=":error_report"`.
 2. On your application class, use this snippet:
 ```java
     @Override
@@ -40,7 +45,7 @@ This library allows launching a custom activity when the app crashes, instead of
 
 ### Test it
 
-Make the app crash by using something like this on your code:
+Make the app crash by using something like this in your code:
 ```java
 throw new RuntimeException("Boom!");
 ```
@@ -68,16 +73,15 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
     * With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
     * With any other custom `UncaughtExceptionHandler` set after initializing the library, that does not call back to the original handler.
 * Your `UncaughtExceptionHandler` will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be done **after** CustomActivityOnCrash initialization).
-* On some rare cases on devices with API<14, the app may enter a restart loop.
+* On some rare cases on devices with API<14, the app may enter a restart loop when a crash occurs.
+* If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases).
 
 ## Disclaimers
 
 * This will not avoid ANRs from happening.
 * This will not catch native errors.
 * There is no guarantee that this will work on every device.
-* If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases)
-* This library will make you toast for breakfast :)
-* Of course, no refunds accepted! ;)
+* This library will not make you toast for breakfast :)
 
 ## Contributing & license
 
