@@ -64,7 +64,7 @@ You should pass the initial activity of your application.
 If you don't set it, or set it to null, instead of restarting, the button will close the app.
 
 ```java
-CustomActivityOnCrash.setErrorActivityClass(ErrorActivity.class);
+CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
 ```
 This method allows you to set a custom error activity to be launched, instead of the default one.
 Use it if you need further customization that is not just strings, colors or themes (see below).
@@ -89,7 +89,23 @@ You can provide new strings and translations for the default error activity stri
     <string name="customactivityoncrash_error_activity_close_app">Close app</string>
 ```
 
-**There is a `sample` project module with examples of these overrides. If in doubt, check the code in the `sample` module.**
+**There is a `sample` project module with examples of these overrides. If in doubt, check the code in that module.**
+
+**Completely custom error activity**
+
+If you choose to create your own completely custom error activity, you can use these methods:
+
+```java
+CustomActivityOnCrash.getStackTraceFromIntent(getIntent());
+```
+Returns the stack trace that caused the error as a string.
+
+```java
+CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
+```
+Returns the class of the activity you have to launch to restart the app, or null if not set.
+
+**The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.**
 
 ## Using Proguard?
 

@@ -39,6 +39,7 @@ public class CustomErrorActivity extends Activity {
         //On your application, this activity can be whatever you want. However, we recommend taking this sample as a basis, and if you use a restart button,
         //keep the logic consistent with this one.
         //BTW, the bug image is licensed under CC-BY by Riff: https://www.sketchport.com/drawing/6119265933459456/lady-bug
+        //If you copy the image for your app, don't forget to mention that!
 
         //Treat here the error as you wish. If you allow the user to restart the app,
         //don't forget to finish the activity, otherwise you will get the CustomErrorActivity
