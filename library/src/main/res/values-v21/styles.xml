@@ -14,17 +14,10 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cat.ereza.customactivityoncrash">
-
-    <application>
-
-        <activity
-            android:name="cat.ereza.customactivityoncrash.activity.DefaultErrorActivity"
-            android:theme="@style/CustomActivityOnCrashTheme"
-            android:process=":error_report"
-            android:label="@string/CustomActivityOnCrash_ErrorActivity_title"/>
-
-    </application>
-
-</manifest>
+<resources>
+    <style name="CustomActivityOnCrashTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/CustomActivityOnCrash_primary</item>
+        <item name="android:colorPrimaryDark">@color/CustomActivityOnCrash_primaryDark</item>
+        <item name="android:colorAccent">@color/CustomActivityOnCrash_accent</item>
+    </style>
+</resources>

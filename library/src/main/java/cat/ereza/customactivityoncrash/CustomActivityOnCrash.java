@@ -29,6 +29,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 
+import cat.ereza.customactivityoncrash.activity.DefaultErrorActivity;
+
 @SuppressLint("NewApi")
 public class CustomActivityOnCrash {
     public static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TACE";
@@ -51,6 +53,14 @@ public class CustomActivityOnCrash {
     public static void init(Context context, final Class<? extends Activity> errorActivityClass) {
         initInternal(context, errorActivityClass, true);
     }
+    /**
+     * Initializes CustomActivityOnCrash on the application.
+     *
+     * @param context            Context to use for obtaining the ApplicationContext. Must not be null.
+     */
+    public static void init(Context context) {
+        initInternal(context, DefaultErrorActivity.class, true);
+    }
 
     /**
      * Initializes CustomActivityOnCrash on the application.
@@ -61,6 +71,17 @@ public class CustomActivityOnCrash {
      */
     public static void init(Context context, final Class<? extends Activity> errorActivityClass, boolean startActivityEvenIfInBackground) {
         initInternal(context, errorActivityClass, startActivityEvenIfInBackground);
+    }
+
+
+    /**
+     * Initializes CustomActivityOnCrash on the application.
+     *
+     * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
+     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
+     */
+    public static void init(Context context, boolean startActivityEvenIfInBackground) {
+        initInternal(context, DefaultErrorActivity.class, startActivityEvenIfInBackground);
     }
 
     /**

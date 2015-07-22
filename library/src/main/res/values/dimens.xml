@@ -14,17 +14,10 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cat.ereza.customactivityoncrash">
+<resources>
 
-    <application>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 
-        <activity
-            android:name="cat.ereza.customactivityoncrash.activity.DefaultErrorActivity"
-            android:theme="@style/CustomActivityOnCrashTheme"
-            android:process=":error_report"
-            android:label="@string/CustomActivityOnCrash_ErrorActivity_title"/>
-
-    </application>
-
-</manifest>
+</resources>
