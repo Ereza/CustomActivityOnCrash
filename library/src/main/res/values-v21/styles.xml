@@ -14,10 +14,12 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <style name="CustomActivityOnCrashTheme" parent="android:Theme.Material.NoActionBar">
-        <item name="android:colorPrimary">@color/CustomActivityOnCrash_primary</item>
-        <item name="android:colorPrimaryDark">@color/CustomActivityOnCrash_primaryDark</item>
-        <item name="android:colorAccent">@color/CustomActivityOnCrash_accent</item>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="CustomActivityOnCrashTheme" parent="android:Theme.Material.Light.DarkActionBar" tools:ignore="ResourceName">
+        <item name="android:colorPrimary">@color/customactivityoncrash_primary</item>
+        <item name="android:colorPrimaryDark">@color/customactivityoncrash_primary_dark</item>
+        <item name="android:colorAccent">@color/customactivityoncrash_accent</item>
     </style>
+
 </resources>

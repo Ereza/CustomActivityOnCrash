@@ -39,16 +39,29 @@ public class ErrorActivity extends Activity {
         //on the activity stack and it will be visible again under some circumstances.
 
         TextView errorDetailsText = (TextView) findViewById(R.id.error_details);
+        errorDetailsText.setText(CustomActivityOnCrash.getStackTraceFromIntent(getIntent()));
+
         Button restartButton = (Button) findViewById(R.id.restart_button);
 
-        errorDetailsText.setText(getIntent().getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE));
-        restartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ErrorActivity.this, MainActivity.class);
-                finish();
-                startActivity(intent);
-            }
-        });
+        final Class<? extends Activity> restartActivityClass = CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
+
+        if (restartActivityClass != null) {
+            restartButton.setText(R.string.restart_app);
+            restartButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ErrorActivity.this, restartActivityClass);
+                    finish();
+                    startActivity(intent);
+                }
+            });
+        } else {
+            restartButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
     }
 }

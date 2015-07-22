@@ -15,17 +15,10 @@
   -->
 
 <resources>
-
-    <string name="app_name">Custom Activity on Crash Sample</string>
-    <string name="hello">Hello! Press one of the following buttons to crash the app:</string>
-    <string name="crash_main_thread">Crash main thread</string>
-    <string name="crash_background_thread">Crash background thread</string>
-    <string name="crash_with_delay">Crash with delay (5s)</string>
-    <string name="error_occurred">An error occurred. We\'re deeply sorry.</string>
-    <string name="error_details">Error details:</string>
-    <string name="unknown_exception">Unknown exception</string>
-    <string name="restart_app">Restart app</string>
-    <string name="error_title">Something went wrong!</string>
-    <string name="CustomActivityOnCrash_ErrorActivity_title">Error Activity</string>
-
+    <string name="customactivityoncrash_error_activity_title">An error occurred!</string>
+    <string name="customactivityoncrash_error_activity_error_occurred">An error occurred. We\'re deeply sorry.</string>
+    <string name="customactivityoncrash_error_activity_error_details">Error details:</string>
+    <string name="customactivityoncrash_error_activity_unknown_exception">Unknown exception</string>
+    <string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
+    <string name="customactivityoncrash_error_activity_close_app">Close app</string>
 </resources>

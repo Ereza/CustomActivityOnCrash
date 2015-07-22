@@ -14,8 +14,8 @@
   ~ limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="CustomActivityOnCrashTheme" parent="android:Theme.Light" />
+    <style name="CustomActivityOnCrashTheme" parent="android:Theme.Light" tools:ignore="ResourceName" />
 
 </resources>

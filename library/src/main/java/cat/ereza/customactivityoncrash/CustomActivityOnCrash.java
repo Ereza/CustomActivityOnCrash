@@ -26,14 +26,16 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 
 import cat.ereza.customactivityoncrash.activity.DefaultErrorActivity;
 
 @SuppressLint("NewApi")
-public class CustomActivityOnCrash {
-    public static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TACE";
+public final class CustomActivityOnCrash {
+    private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
+    private static final String EXTRA_RESTART_ACTIVITY_CLASS = "cat.ereza.customactivityoncrash.EXTRA_RESTART_ACTIVITY_CLASS";
 
     private final static String TAG = "CustomActivityOnCrash";
     private static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
@@ -44,72 +46,33 @@ public class CustomActivityOnCrash {
     private static Application application;
     private static boolean isInBackground = false;
 
-    /**
-     * Initializes CustomActivityOnCrash on the application.
-     *
-     * @param context            Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param errorActivityClass Activity to launch when the app crashes. Must not be null.
-     */
-    public static void init(Context context, final Class<? extends Activity> errorActivityClass) {
-        initInternal(context, errorActivityClass, true);
-    }
-    /**
-     * Initializes CustomActivityOnCrash on the application.
-     *
-     * @param context            Context to use for obtaining the ApplicationContext. Must not be null.
-     */
-    public static void init(Context context) {
-        initInternal(context, DefaultErrorActivity.class, true);
-    }
+    //Settable properties
+    private static boolean launchActivityEvenIfInBackground = true;
+    private static Class<? extends Activity> errorActivityClass = DefaultErrorActivity.class;
+    private static Class<? extends Activity> restartActivityClass = null;
 
     /**
-     * Initializes CustomActivityOnCrash on the application.
+     * Installs CustomActivityOnCrash on the application using the default error activity.
      *
-     * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param errorActivityClass              Activity to launch when the app crashes. Must not be null.
-     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
+     * @param context Context to use for obtaining the ApplicationContext. Must not be null.
      */
-    public static void init(Context context, final Class<? extends Activity> errorActivityClass, boolean startActivityEvenIfInBackground) {
-        initInternal(context, errorActivityClass, startActivityEvenIfInBackground);
-    }
-
-
-    /**
-     * Initializes CustomActivityOnCrash on the application.
-     *
-     * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
-     */
-    public static void init(Context context, boolean startActivityEvenIfInBackground) {
-        initInternal(context, DefaultErrorActivity.class, startActivityEvenIfInBackground);
-    }
-
-    /**
-     * INTERNAL method that initializes CustomActivityOnCrash on the application.
-     *
-     * @param context                         Context to use for obtaining the ApplicationContext. Must not be null.
-     * @param errorActivityClass              Activity to launch when the app crashes. Must not be null.
-     * @param startActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
-     */
-    private static void initInternal(Context context, final Class<? extends Activity> errorActivityClass, final boolean startActivityEvenIfInBackground) {
+    public static void install(Context context) {
         try {
             if (context == null) {
-                Log.e(TAG, "Initialization failed: context is null!");
-            } else if (errorActivityClass == null) {
-                Log.e(TAG, "Initialization failed: errorActivityClass is null!");
+                Log.e(TAG, "Install failed: context is null!");
             } else {
                 if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                    Log.w(TAG, "CustomActivityOnCrash will be initialized, but may not be reliable in API lower than 14");
+                    Log.w(TAG, "CustomActivityOnCrash will be installed, but may not be reliable in API lower than 14");
                 }
 
                 //INSTALL!
                 Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
 
                 if (oldHandler != null && oldHandler.getClass().getName().startsWith(CAOC_HANDLER_PACKAGE_NAME)) {
-                    Log.e(TAG, "You have already initialized CustomActivityOnCrash, doing nothing!");
+                    Log.e(TAG, "You have already installed CustomActivityOnCrash, doing nothing!");
                 } else {
                     if (oldHandler != null && !oldHandler.getClass().getName().startsWith(DEFAULT_HANDLER_PACKAGE_NAME)) {
-                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use ACRA, Crashlytics or similar libraries, you must initialize them AFTER CustomActivityOnCrash! Initializing anyway, but your original handler will not be called.");
+                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use ACRA, Crashlytics or similar libraries, you must initialize them AFTER CustomActivityOnCrash! Installing anyway, but your original handler will not be called.");
                     }
 
                     application = (Application) context.getApplicationContext();
@@ -123,7 +86,7 @@ public class CustomActivityOnCrash {
                             if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
                                 Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
                             } else {
-                                if (startActivityEvenIfInBackground || !isInBackground) {
+                                if (launchActivityEvenIfInBackground || !isInBackground) {
                                     final Intent intent = new Intent(application, errorActivityClass);
                                     StringWriter sw = new StringWriter();
                                     PrintWriter pw = new PrintWriter(sw);
@@ -140,6 +103,7 @@ public class CustomActivityOnCrash {
                                     }
 
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
+                                    intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     application.startActivity(intent);
                                 }
@@ -206,13 +170,69 @@ public class CustomActivityOnCrash {
                             }
                         });
                     }
-                }
 
-                Log.i(TAG, "CustomActivityOnCrash has been initialized.");
+                    Log.i(TAG, "CustomActivityOnCrash has been installed.");
+                }
             }
         } catch (Throwable t) {
-            Log.e(TAG, "An unknown error occurred when initializing CustomActivityOnCrash, it may not have been properly initialized. Please report this as a bug if needed.", t);
+            Log.e(TAG, "An unknown error occurred while installing CustomActivityOnCrash, it may not have been properly initialized. Please report this as a bug if needed.", t);
         }
+    }
+
+    /**
+     * Given an Intent, returns the stack trace extra from it.
+     *
+     * @param intent The Intent. Must not be null.
+     * @return The stacktrace, or null if not provided.
+     */
+    public static String getStackTraceFromIntent(Intent intent) {
+        return intent.getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE);
+    }
+
+    /**
+     * Given an Intent, returns the restart activity class extra from it.
+     *
+     * @param intent The Intent. Must not be null.
+     * @return The restart activity class, or null if not provided.
+     */
+    @SuppressWarnings("unchecked")
+    public static Class<? extends Activity> getRestartActivityClassFromIntent(Intent intent) {
+        Serializable serializedClass = intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_RESTART_ACTIVITY_CLASS);
+
+        if (serializedClass != null && serializedClass instanceof Class) {
+            return (Class<? extends Activity>) serializedClass;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Initializes CustomActivityOnCrash on the application.
+     *
+     * @param context            Context to use for obtaining the ApplicationContext. Must not be null.
+     * @param errorActivityClass Activity to launch when the app crashes. Must not be null.
+     * @deprecated Will be removed in the future. Use setErrorActivityClass(class) and install(context)
+     */
+    @Deprecated
+    public static void init(Context context, final Class<? extends Activity> errorActivityClass) {
+        setErrorActivityClass(errorActivityClass);
+        setLaunchActivityEvenIfInBackground(true);
+        install(context);
+    }
+
+    /**
+     * Initializes CustomActivityOnCrash on the application.
+     *
+     * @param context                          Context to use for obtaining the ApplicationContext. Must not be null.
+     * @param errorActivityClass               Activity to launch when the app crashes. Must not be null.
+     * @param launchActivityEvenIfInBackground true if you want to launch the error activity even if the app is in background, false otherwise. This has no effect in API<14 and the activity is always launched.
+     * @deprecated Will be removed in the future. Use setErrorActivityClass(class), setLaunchActivityEvenIfInBackground(boolean) and install(context)
+     */
+    @Deprecated
+    public static void init(Context context, final Class<? extends Activity> errorActivityClass, boolean launchActivityEvenIfInBackground) {
+        setErrorActivityClass(errorActivityClass);
+        setLaunchActivityEvenIfInBackground(launchActivityEvenIfInBackground);
+        install(context);
     }
 
     /**
@@ -234,5 +254,63 @@ public class CustomActivityOnCrash {
             }
         } while ((throwable = throwable.getCause()) != null);
         return false;
+    }
+
+    /**
+     * Returns the error activity class to launch when a crash occurs.
+     *
+     * @return The class, or DefaultErrorActivity if not set.
+     */
+    public static Class<? extends Activity> getErrorActivityClass() {
+        return errorActivityClass;
+    }
+
+    /**
+     * Sets the error activity class to launch when a crash occurs.
+     * If null,the default error activity will be used.
+     */
+    public static void setErrorActivityClass(Class<? extends Activity> errorActivityClass) {
+        if (errorActivityClass != null) {
+            CustomActivityOnCrash.errorActivityClass = errorActivityClass;
+        } else {
+            CustomActivityOnCrash.errorActivityClass = DefaultErrorActivity.class;
+        }
+    }
+
+    /**
+     * Returns the main activity class that the error activity must launch when a crash occurs.
+     *
+     * @return The class, or null if not set.
+     */
+    public static Class<? extends Activity> getRestartActivityClass() {
+        return restartActivityClass;
+    }
+
+    /**
+     * Sets the main activity class that the error activity must launch when a crash occurs.
+     * If not set or set to null, the default error activity will close instead.
+     */
+    public static void setRestartActivityClass(Class<? extends Activity> restartActivityClass) {
+        CustomActivityOnCrash.restartActivityClass = restartActivityClass;
+    }
+
+    /**
+     * Returns if the error activity must be launched even if the app is on background.
+     *
+     * @return true if it will be launched, false otherwise.
+     */
+    public static boolean isLaunchActivityEvenIfInBackground() {
+        return launchActivityEvenIfInBackground;
+    }
+
+    /**
+     * Defines if the error activity must be launched even if the app is on background.
+     * Set it to true if you want to launch the error activity even if the app is in background,
+     * false if you want it not to launch and crash silently.
+     * This has no effect in API<14 and the error activity is always launched.
+     * The default is true (the app will be brought to front when a crash occurs).
+     */
+    public static void setLaunchActivityEvenIfInBackground(boolean launchActivityEvenIfInBackground) {
+        CustomActivityOnCrash.launchActivityEvenIfInBackground = launchActivityEvenIfInBackground;
     }
 }
