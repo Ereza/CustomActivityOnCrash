@@ -24,7 +24,7 @@
         android:label="@string/app_name"
         android:theme="@style/SampleAppTheme">
         <activity
-            android:name="cat.ereza.sample.customactivityoncrash.MainActivity"
+            android:name="cat.ereza.sample.customactivityoncrash.activity.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +33,8 @@
         </activity>
 
         <activity
-            android:name="cat.ereza.sample.customactivityoncrash.ErrorActivity"
+            android:name="cat.ereza.sample.customactivityoncrash.activity.CustomErrorActivity"
+            android:label="@string/error_title"
             android:process=":error_activity" />
     </application>
 

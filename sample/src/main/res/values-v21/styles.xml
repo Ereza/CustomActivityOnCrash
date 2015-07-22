@@ -17,9 +17,13 @@
 <resources>
 
     <style name="SampleAppTheme" parent="android:Theme.Material.Light.DarkActionBar">
-      <item name="android:colorPrimary">@color/primary</item>
-      <item name="android:colorPrimaryDark">@color/primaryDark</item>
-      <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:colorAccent">@color/accent</item>
     </style>
+
+    <!-- We make CustomActivityOnCrashTheme inherit from SampleAppTheme, so it uses our own theme instead -->
+    <!-- This only applies when using the default error activity, of course! -->
+    <style name="CustomActivityOnCrashTheme" parent="SampleAppTheme" />
 
 </resources>

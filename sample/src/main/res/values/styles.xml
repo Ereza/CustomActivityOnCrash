@@ -18,4 +18,8 @@
 
     <style name="SampleAppTheme" parent="android:Theme.Light" />
 
+    <!-- We make CustomActivityOnCrashTheme inherit from SampleAppTheme, so it uses our own theme instead -->
+    <!-- This only applies when using the default error activity, of course! -->
+    <style name="CustomActivityOnCrashTheme" parent="SampleAppTheme" />
+
 </resources>

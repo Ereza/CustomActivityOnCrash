@@ -31,6 +31,7 @@ public final class DefaultErrorActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.customactivityoncrash_default_error_activity);
 
         //We retrieve the stack trace and show it
