@@ -22,7 +22,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/SampleAppTheme">
         <activity
             android:name="cat.ereza.sample.customactivityoncrash.MainActivity"
             android:label="@string/app_name">
@@ -34,7 +34,7 @@
 
         <activity
             android:name="cat.ereza.sample.customactivityoncrash.ErrorActivity"
-            android:process=":error_report" />
+            android:process=":error_activity" />
     </application>
 
 </manifest>

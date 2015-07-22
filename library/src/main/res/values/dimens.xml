@@ -14,17 +14,11 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cat.ereza.customactivityoncrash">
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="customactivityoncrash_activity_horizontal_margin">16dp</dimen>
+    <dimen name="customactivityoncrash_activity_vertical_margin">16dp</dimen>
 
-    <application>
-
-        <activity
-            android:name="cat.ereza.customactivityoncrash.activity.DefaultErrorActivity"
-            android:label="@string/customactivityoncrash_error_activity_title"
-            android:process=":error_activity"
-            android:theme="@style/CustomActivityOnCrashTheme" />
-
-    </application>
-
-</manifest>
+    <!-- Margin for the restart/close button -->
+    <dimen name="customactivityoncrash_restart_button_margin">16dp</dimen>
+</resources>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cat.ereza.sample.customactivityoncrash;
+package cat.ereza.customactivityoncrash.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,33 +24,33 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+import cat.ereza.customactivityoncrash.R;
 
-public class ErrorActivity extends Activity {
+public final class DefaultErrorActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.customactivityoncrash_default_error_activity);
 
-        setTitle(R.string.error_title);
-        setContentView(R.layout.activity_error);
-
-        //Treat here the error as you wish. If you allow the user to restart the app,
-        //don't forget to finish the activity, otherwise you will get the ErrorActivity
-        //on the activity stack and it will be visible again under some circumstances.
-
-        TextView errorDetailsText = (TextView) findViewById(R.id.error_details);
+        //We retrieve the stack trace and show it
+        TextView errorDetailsText = (TextView) findViewById(R.id.customactivityoncrash_error_activity_error_details);
         errorDetailsText.setText(CustomActivityOnCrash.getStackTraceFromIntent(getIntent()));
 
-        Button restartButton = (Button) findViewById(R.id.restart_button);
+        //Close/restart button logic:
+        //If a class if set, use restart.
+        //Else, use close and just finish the app.
+        //It is recommended that you follow this logic if implementing a custom error activity.
+        Button restartButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_restart_button);
 
         final Class<? extends Activity> restartActivityClass = CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
 
         if (restartActivityClass != null) {
-            restartButton.setText(R.string.restart_app);
+            restartButton.setText(R.string.customactivityoncrash_error_activity_restart_app);
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(ErrorActivity.this, restartActivityClass);
+                    Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
                     finish();
                     startActivity(intent);
                 }

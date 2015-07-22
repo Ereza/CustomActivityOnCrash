@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
                         } catch (InterruptedException e) {
                             //meh
                         }
-                        throw new RuntimeException("I AM ERROR! (a delayed one)");
+                        throw new RuntimeException("I am a not so cool exception, and I am delayed, so you can check if the app crashes when in background!)");
                     }
                 }.execute();
             }

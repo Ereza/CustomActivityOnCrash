@@ -27,7 +27,10 @@ public class SampleCrashableApplication extends Application {
         super.onCreate();
 
         //Install CustomActivityOnCrash
-        CustomActivityOnCrash.init(this, ErrorActivity.class, true);
+        CustomActivityOnCrash.setLaunchActivityEvenIfInBackground(false);
+        CustomActivityOnCrash.setErrorActivityClass(ErrorActivity.class);
+        CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
+        CustomActivityOnCrash.install(this);
 
         //Now initialize your error handlers as normal, they will most likely keep a reference to the original exception handler
         //i.e., ACRA.init(this);

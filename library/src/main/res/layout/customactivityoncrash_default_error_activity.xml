@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2015 Eduard Ereza Martínez
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,10 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
+    android:paddingBottom="@dimen/customactivityoncrash_activity_vertical_margin"
+    android:paddingLeft="@dimen/customactivityoncrash_activity_horizontal_margin"
+    android:paddingRight="@dimen/customactivityoncrash_activity_horizontal_margin"
+    android:paddingTop="@dimen/customactivityoncrash_activity_vertical_margin">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -39,7 +39,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/error_occurred"
+                android:text="@string/customactivityoncrash_error_activity_error_occurred"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -47,23 +47,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="@string/error_details"
+                android:text="@string/customactivityoncrash_error_activity_error_details"
                 android:textStyle="bold" />
 
 
             <TextView
-                android:id="@+id/error_details"
+                android:id="@+id/customactivityoncrash_error_activity_error_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="@string/unknown_exception" />
+                android:text="@string/customactivityoncrash_error_activity_unknown_exception" />
         </LinearLayout>
     </ScrollView>
 
     <Button
-        android:id="@+id/restart_button"
+        android:id="@+id/customactivityoncrash_error_activity_restart_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/customactivityoncrash_restart_button_margin"
         android:layout_weight="0"
-        android:text="@string/close_app" />
+        android:text="@string/customactivityoncrash_error_activity_close_app" />
 </LinearLayout>

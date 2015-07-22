@@ -25,6 +25,7 @@
     <string name="error_details">Error details:</string>
     <string name="unknown_exception">Unknown exception</string>
     <string name="restart_app">Restart app</string>
+    <string name="close_app">Close app</string>
     <string name="error_title">Something went wrong!</string>
 
 </resources>
