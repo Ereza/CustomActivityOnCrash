@@ -34,20 +34,20 @@ public class CustomErrorActivity extends Activity {
 
         setContentView(R.layout.activity_custom_error);
 
-        //The custom error activity in this sample is just a copy of the default one for demonstration purposes,
-        //only with an image of a bug on top of it.
-        //On your application, this activity can be whatever you want. However, we recommend taking this sample as a basis, and if you use a restart button,
-        //keep the logic consistent with this one.
-        //BTW, the bug image is licensed under CC-BY by Riff: https://www.sketchport.com/drawing/6119265933459456/lady-bug
-        //If you copy the image for your app, don't forget to mention that!
+        //**IMPORTANT**
+        //The custom error activity in this sample is uglier than the default one and just
+        //for demonstration purposes, please don't copy it to your project!
+        //We recommend taking the original library's DefaultErrorActivity as a basis.
+        //Of course, you are free to implement it as you wish in your application.
 
-        //Treat here the error as you wish. If you allow the user to restart the app,
+        //These three methods are available for you to use:
+        //CustomActivityOnCrash.getStackTraceFromIntent(getIntent()): gets the stack trace as a string
+        //CustomActivityOnCrash.getAllErrorDetailsFromIntent(context, getIntent()): returns all error details including stacktrace as a string
+        //CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent()): returns the class of the restart activity to launch, or null if none
+
+        //Now, treat here the error as you wish. If you allow the user to restart the app,
         //don't forget to finish the activity, otherwise you will get the CustomErrorActivity
         //on the activity stack and it will be visible again under some circumstances.
-
-        //These two methods are available for you to use:
-        //CustomActivityOnCrash.getStackTraceFromIntent(getIntent()): gets the stack trace as a string
-        //CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent()): returns the class of the restart activity to launch, or null if none
 
         TextView errorDetailsText = (TextView) findViewById(R.id.error_details);
         errorDetailsText.setText(CustomActivityOnCrash.getStackTraceFromIntent(getIntent()));

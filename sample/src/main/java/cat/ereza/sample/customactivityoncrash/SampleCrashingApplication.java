@@ -19,29 +19,32 @@ package cat.ereza.sample.customactivityoncrash;
 import android.app.Application;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
-import cat.ereza.sample.customactivityoncrash.activity.CustomErrorActivity;
 import cat.ereza.sample.customactivityoncrash.activity.MainActivity;
 
-public class SampleCrashableApplication extends Application {
+public class SampleCrashingApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        //You can comment out any of the lines below, and test the results.
+        //You can uncomment any of the lines below, and test the results.
         //If you comment out the install one, the library will not work and the default Android crash dialog will be shown.
 
         //This makes the library not launch the error activity when the app crashes while it is in background.
         CustomActivityOnCrash.setLaunchActivityEvenIfInBackground(false);
 
-        //This sets a custom error activity class instead of the default one.
-        //Uncomment it to see the customization effects on the default error activity.
-        CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
-
         //This sets the restart activity. If you don't do this, the "Restart app" button will change to "Close app".
         CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
 
-        //This enables CustomActivityonCrash
+        //This hides the "error details" button, thus hiding the stack trace
+//        CustomActivityOnCrash.setShowErrorDetails(false);
+
+        //This sets a custom error activity class instead of the default one.
+        //Comment it to see the customization effects on the default error activity.
+        //Uncomment to use the custom error activity
+//        CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
+
+        //This enables CustomActivityOnCrash
         CustomActivityOnCrash.install(this);
 
         //In a normal app, you would now initialize your error handler as normal.

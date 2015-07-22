@@ -13,58 +13,54 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/customactivityoncrash_activity_vertical_margin"
-    android:paddingLeft="@dimen/customactivityoncrash_activity_horizontal_margin"
-    android:paddingRight="@dimen/customactivityoncrash_activity_horizontal_margin"
-    android:paddingTop="@dimen/customactivityoncrash_activity_vertical_margin">
+    android:gravity="center">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_height="wrap_content"
+        tools:ignore="UselessParent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/customactivityoncrash_activity_vertical_margin"
+            android:paddingLeft="@dimen/customactivityoncrash_activity_horizontal_margin"
+            android:paddingRight="@dimen/customactivityoncrash_activity_horizontal_margin"
+            android:paddingTop="@dimen/customactivityoncrash_activity_vertical_margin">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/customactivityoncrash_error_image" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/customactivityoncrash_error_activity_error_occurred"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="@string/customactivityoncrash_error_activity_error_occurred_explanation"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <TextView
+            <Button
+                android:id="@+id/customactivityoncrash_error_activity_restart_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/customactivityoncrash_error_activity_error_details"
-                android:textStyle="bold" />
+                android:layout_marginTop="12dp"
+                android:text="@string/customactivityoncrash_error_activity_close_app" />
 
-
-            <TextView
-                android:id="@+id/customactivityoncrash_error_activity_error_details"
+            <Button
+                android:id="@+id/customactivityoncrash_error_activity_more_info_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/customactivityoncrash_error_activity_unknown_exception" />
+                android:text="@string/customactivityoncrash_error_activity_error_details" />
         </LinearLayout>
     </ScrollView>
-
-    <Button
-        android:id="@+id/customactivityoncrash_error_activity_restart_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/customactivityoncrash_restart_button_margin"
-        android:layout_weight="0"
-        android:text="@string/customactivityoncrash_error_activity_close_app" />
-</LinearLayout>
+</RelativeLayout>

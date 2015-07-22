@@ -35,11 +35,12 @@
     <!-- We define some custom strings for the default error activity -->
     <!-- This only applies when using the default error activity, of course! -->
     <!-- To see them, disable the custom error activity in SampleCrashableApplication -->
-    <string name="customactivityoncrash_error_activity_title">Error!</string>
-    <string name="customactivityoncrash_error_activity_error_occurred">An error occurred in this sample app. This is the default error activity with customized strings.</string>
-    <string name="customactivityoncrash_error_activity_error_details">Stack trace of the error:</string>
+    <string name="customactivityoncrash_error_activity_error_occurred_explanation">An error occurred in this sample app. This is the default error activity with customized strings.</string>
     <string name="customactivityoncrash_error_activity_unknown_exception">No stacktrace available!</string>
     <string name="customactivityoncrash_error_activity_restart_app">Restart now</string>
     <string name="customactivityoncrash_error_activity_close_app">Close now</string>
+    <string name="customactivityoncrash_error_activity_error_details">Error information</string>
+    <string name="customactivityoncrash_error_activity_error_details_title">Error information</string>
+    <string name="customactivityoncrash_error_activity_error_details_close">OK</string>
 
 </resources>

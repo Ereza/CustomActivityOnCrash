@@ -8,8 +8,8 @@ This library allows launching a custom activity when the app crashes, instead of
 
 Add the following dependency to your build.gradle:
 ```gradle
-dependencies{
-    compile 'cat.ereza:customactivityoncrash:1.0.1'
+dependencies {
+    compile 'cat.ereza:customactivityoncrash:1.1.0'
 }
 ```
 
@@ -57,6 +57,12 @@ By default, this is true. On API<14, it's always true since there is no way to d
 If you set it to false, a crash while in background won't launch the error activity nor the system dialog, so it will be a silent crash.
 
 ```java
+CustomActivityOnCrash.setShowErrorDetails(false);
+```
+This method defines if the error activity must show a button with error details.
+If you set it to false, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
+
+```java
 CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
 ```
 This method sets the activity that must be launched by the error activity when the user presses the button to restart the app.
@@ -77,16 +83,21 @@ You can override several resources to customize the default activity:
 
 You can override the default error activity theme by defining a theme in your app with the following id: `CustomActivityOnCrashTheme`
 
+*Image:*
+
+By default, an image of a bug is displayed. You can change it to any image by creating a `customactivityoncrash_error_image` drawable on all density buckets (mdpi, hdpi, xhdpi, xxhdpi and xxxhdpi).
+
 *Strings:*
 
 You can provide new strings and translations for the default error activity strings by overriding the following strings:
 ```xml
-    <string name="customactivityoncrash_error_activity_title">An error occurred!</string>
-    <string name="customactivityoncrash_error_activity_error_occurred">An error occurred. We\'re deeply sorry.</string>
-    <string name="customactivityoncrash_error_activity_error_details">Error details:</string>
+    <string name="customactivityoncrash_error_activity_error_occurred_explanation">An unexpected error occurred.\nSorry for the inconvenience.</string>
     <string name="customactivityoncrash_error_activity_unknown_exception">Unknown exception</string>
     <string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
     <string name="customactivityoncrash_error_activity_close_app">Close app</string>
+    <string name="customactivityoncrash_error_activity_error_details">Error details</string>
+    <string name="customactivityoncrash_error_activity_error_details_title">Error details</string>
+    <string name="customactivityoncrash_error_activity_error_details_close">Close</string>
 ```
 
 *There is a `sample` project module with examples of these overrides. If in doubt, check the code in that module.*
@@ -99,6 +110,11 @@ If you choose to create your own completely custom error activity, you can use t
 CustomActivityOnCrash.getStackTraceFromIntent(getIntent());
 ```
 Returns the stack trace that caused the error as a string.
+
+```java
+CustomActivityOnCrash.getAllErrorDetailsFromIntent(getIntent());
+```
+Returns several error details including the stack trace that caused the error, as a string. This is used in the default error activity error details dialog.
 
 ```java
 CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
@@ -143,3 +159,6 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
 Any contribution in order to make this library better will be welcome!
 
 The library is licensed under the [Apache License 2.0](https://github.com/Ereza/CustomActivityOnCrash/blob/master/LICENSE).
+
+The bug image used in the default error activity is licensed under CC-BY by Riff: https://www.sketchport.com/drawing/6119265933459456/lady-bug
+If you use the image in your app, don't forget to mention that!

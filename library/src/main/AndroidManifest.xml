@@ -21,7 +21,6 @@
 
         <activity
             android:name="cat.ereza.customactivityoncrash.activity.DefaultErrorActivity"
-            android:label="@string/customactivityoncrash_error_activity_title"
             android:process=":error_activity"
             android:theme="@style/CustomActivityOnCrashTheme" />
 

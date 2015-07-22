@@ -15,10 +15,11 @@
   -->
 
 <resources>
-    <string name="customactivityoncrash_error_activity_title">An error occurred!</string>
-    <string name="customactivityoncrash_error_activity_error_occurred">An error occurred. We\'re deeply sorry.</string>
-    <string name="customactivityoncrash_error_activity_error_details">Error details:</string>
+    <string name="customactivityoncrash_error_activity_error_occurred_explanation">An unexpected error occurred.\nSorry for the inconvenience.</string>
     <string name="customactivityoncrash_error_activity_unknown_exception">Unknown exception</string>
     <string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
     <string name="customactivityoncrash_error_activity_close_app">Close app</string>
+    <string name="customactivityoncrash_error_activity_error_details">Error details</string>
+    <string name="customactivityoncrash_error_activity_error_details_title">Error details</string>
+    <string name="customactivityoncrash_error_activity_error_details_close">Close</string>
 </resources>
