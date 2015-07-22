@@ -89,7 +89,7 @@ You can provide new strings and translations for the default error activity stri
     <string name="customactivityoncrash_error_activity_close_app">Close app</string>
 ```
 
-**There is a `sample` project module with examples of these overrides. If in doubt, check the code in that module.**
+*There is a `sample` project module with examples of these overrides. If in doubt, check the code in that module.*
 
 **Completely custom error activity**
 
@@ -105,7 +105,7 @@ CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
 ```
 Returns the class of the activity you have to launch to restart the app, or null if not set.
 
-**The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.**
+*The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.*
 
 ## Using Proguard?
 
