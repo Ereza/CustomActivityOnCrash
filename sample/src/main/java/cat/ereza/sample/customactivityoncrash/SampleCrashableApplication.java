@@ -19,6 +19,7 @@ package cat.ereza.sample.customactivityoncrash;
 import android.app.Application;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+import cat.ereza.sample.customactivityoncrash.activity.CustomErrorActivity;
 import cat.ereza.sample.customactivityoncrash.activity.MainActivity;
 
 public class SampleCrashableApplication extends Application {
@@ -35,7 +36,7 @@ public class SampleCrashableApplication extends Application {
 
         //This sets a custom error activity class instead of the default one.
         //Uncomment it to see the customization effects on the default error activity.
-//        CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
+        CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
 
         //This sets the restart activity. If you don't do this, the "Restart app" button will change to "Close app".
         CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
