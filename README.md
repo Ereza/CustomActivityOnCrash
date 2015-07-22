@@ -22,26 +22,22 @@ dependencies{
 
 ### Make it work
 
-1. Add a custom activity that will be your error activity. Add this additional parameter to the activity declaration in the manifest: `process=":error_report"`.
-2. On your application class, use this snippet:
+On your application class, use this snippet:
 ```java
     @Override
     public void onCreate() {
         super.onCreate();
 
         //Install CustomActivityOnCrash
-        CustomActivityOnCrash.init(this, ErrorActivity.class, true);
+        CustomActivityOnCrash.install(this);
 
         //Now initialize your error handlers as normal
         //i.e., ACRA.init(this);
         //or Crashlytics.start(this);
     }
 ```
-3. (Optional) On your error activity, use `getIntent().getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE)` to retrieve the stack trace and display it if you wish.
 
-**WARNING!** As you see, if you already have ACRA, Crashlytics or any similar library bundled into your app, you can make them coexist, but the CustomActivityOnCrash initialization **must** be done first.
-
-**If in doubt, check the `sample` project module.**
+**WARNING!** If you already have ACRA, Crashlytics or any similar library in your app, it will still work as normal, but the CustomActivityOnCrash initialization **MUST** be done first, or the original reporting tool will stop working.
 
 ### Test it
 
@@ -50,7 +46,64 @@ Make the app crash by using something like this in your code:
 throw new RuntimeException("Boom!");
 ```
 
-Your custom error activity should show up, instead of the system dialog.
+The error activity should show up, instead of the system dialog.
+
+### Customization
+
+** Custom behavior **
+
+You can call the following methods at any time to customize how the library works, although usually you will call them before calling `install(content)`:
+
+```java
+CustomActivityOnCrash.setLaunchActivityEvenIfInBackground(false);
+```
+This method sets if the error activity should be launched even if the app crashed while on background.
+By default, this is true. On API<14, it's always true since there is no way to detect if the app is in foreground.
+If you set it to false, a crash while in background won't launch the error activity nor the system dialog, so it will be a silent crash.
+
+```java
+CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
+```
+This method sets the activity that must be launcher from the error activity to restart the app.
+You should pass the start activity of your application.
+If you don't set it, or set it to null, instead of restarting, the button will close the app.
+
+```java
+CustomActivityOnCrash.setErrorActivityClass(ErrorActivity.class);
+```
+This method allows you to set a custom error activity to be launched, instead of the default one.
+Use it if you need further customization that is not just strings, colors or themes.
+
+** Customization of the default activity **
+
+You can override several resources to customize the default activity:
+
+*Theme:*
+
+You can override the default error activity theme by defining a theme in your app with the following id: `CustomActivityOnCrashTheme`
+
+*Colors:*
+
+You can override the default error activity theme colors by defining the following colors in your app:
+```
+customactivityoncrash_primary
+customactivityoncrash_primary_dark
+customactivityoncrash_accent
+```
+
+*Strings:*
+
+You can provide new strings and translations for the default error activity strings by overriding the following strings:
+```xml
+    <string name="customactivityoncrash_error_activity_title">An error occurred!</string>
+    <string name="customactivityoncrash_error_activity_error_occurred">An error occurred. We\'re deeply sorry.</string>
+    <string name="customactivityoncrash_error_activity_error_details">Error details:</string>
+    <string name="customactivityoncrash_error_activity_unknown_exception">Unknown exception</string>
+    <string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
+    <string name="customactivityoncrash_error_activity_close_app">Close app</string>
+```
+
+**There is a `sample` project module with examples of all these overrides. If in doubt, check the code in the `sample` module.**
 
 ## Using Proguard?
 
@@ -73,7 +126,7 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
     * With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
     * With any other custom `UncaughtExceptionHandler` set after initializing the library, that does not call back to the original handler.
 * Your `UncaughtExceptionHandler` will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be done **after** CustomActivityOnCrash initialization).
-* On some rare cases on devices with API<14, the app may enter a restart loop when a crash occurs.
+* On some rare cases on devices with API<14, the app may enter a restart loop when a crash occurs. Therefore, using it on API<14 is not recommended.
 * If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases).
 
 ## Disclaimers
