@@ -88,7 +88,7 @@ As noted, you can also use the following intent-filter to specify the restart ac
 ```xml
 <intent-filter>
     <!-- ... -->
-    <!--<action android:name="cat.ereza.customactivityoncrash.RESTART" />-->
+    <action android:name="cat.ereza.customactivityoncrash.RESTART" />
 </intent-filter>
 ```
 
@@ -104,7 +104,7 @@ As noted, you can also use the following intent-filter to specify the error acti
 ```xml
 <intent-filter>
     <!-- ... -->
-    <!--<action android:name="cat.ereza.customactivityoncrash.ERROR" />-->
+    <action android:name="cat.ereza.customactivityoncrash.ERROR" />
 </intent-filter>
 ```
 
