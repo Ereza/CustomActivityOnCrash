@@ -21,8 +21,12 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,6 +38,7 @@ import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -52,6 +57,7 @@ public final class CustomActivityOnCrash {
     private static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
     private static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android.internal.os";
     private static final int MAX_STACK_TRACE_SIZE = 131071; //128 KB - 1
+    private static final String INTENT_ACTION_ERROR_ACTIVITY = "cat.ereza.customactivityoncrash.ERROR";
 
     //Internal variables
     private static WeakReference<Activity> lastActivityCreated = new WeakReference<>(null);
@@ -62,7 +68,9 @@ public final class CustomActivityOnCrash {
     private static boolean launchActivityEvenIfInBackground = true;
     private static Class<? extends Activity> errorActivityClass = DefaultErrorActivity.class;
     private static Class<? extends Activity> restartActivityClass = null;
+    private static Class restartActivityClassFromIntentFilter = null;
     private static boolean showErrorDetails = true;
+    private static boolean enableAppRestart = true;
 
     /**
      * Installs CustomActivityOnCrash on the application using the default error activity.
@@ -77,7 +85,9 @@ public final class CustomActivityOnCrash {
                 if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     Log.w(TAG, "CustomActivityOnCrash will be installed, but may not be reliable in API lower than 14");
                 }
-
+                if (enableAppRestart && null == CustomActivityOnCrash.restartActivityClass) {
+                    guessRestartActivityClass(context);
+                }
                 //INSTALL!
                 Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
 
@@ -116,7 +126,9 @@ public final class CustomActivityOnCrash {
                                     }
 
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
-                                    intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
+                                    intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, CustomActivityOnCrash.restartActivityClass
+                                            == null ? CustomActivityOnCrash.restartActivityClassFromIntentFilter :
+                                            CustomActivityOnCrash.restartActivityClass);
                                     intent.putExtra(EXTRA_SHOW_ERROR_DETAILS, showErrorDetails);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     application.startActivity(intent);
@@ -191,6 +203,20 @@ public final class CustomActivityOnCrash {
         } catch (Throwable t) {
             Log.e(TAG, "An unknown error occurred while installing CustomActivityOnCrash, it may not have been properly initialized. Please report this as a bug if needed.", t);
         }
+    }
+
+    /**
+     * Enable app restart, it will show a button to restart app, enabled by default
+     */
+    public static void enableAppRestart() {
+        CustomActivityOnCrash.enableAppRestart = true;
+    }
+
+    /**
+     * Enable app restart, it will show a button to close app
+     */
+    public static void disableAppRestart() {
+        CustomActivityOnCrash.enableAppRestart = false;
     }
 
     /**
@@ -299,6 +325,56 @@ public final class CustomActivityOnCrash {
      */
     public static void setRestartActivityClass(Class<? extends Activity> restartActivityClass) {
         CustomActivityOnCrash.restartActivityClass = restartActivityClass;
+    }
+
+    /**
+     * It will first get activity from AndroidManifest with intent filter <action android:name="cat.ereza.customactivityoncrash.ERROR" />
+     * if cannot find then it will get the default launcher.
+     *
+     * @param context
+     */
+    private static void guessRestartActivityClass(Context context) {
+        //if action is defined
+        restartActivityClassFromIntentFilter = CustomActivityOnCrash.getRestartActivityClassWithIntentFilter(context);
+        //get the default launcher
+        if (null == restartActivityClassFromIntentFilter) {
+            restartActivityClassFromIntentFilter = getLauncherActivity(context);
+        }
+
+    }
+
+    private static Class<?> getRestartActivityClassWithIntentFilter(Context context) {
+
+        List<ResolveInfo> infos = context.getPackageManager().queryIntentActivities(
+                new Intent().setAction(INTENT_ACTION_ERROR_ACTIVITY),
+                PackageManager.GET_RESOLVED_FILTER);
+
+        if (null != infos && infos.size() > 0) {
+            ResolveInfo resolveInfo = infos.get(0);
+            try {
+                return Class.forName(resolveInfo.activityInfo.name);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                Log.e(TAG, "IMPORTANT WARNING! Class not found!");
+            }
+        }
+
+        return null;
+    }
+
+    private static Class<?> getLauncherActivity(Context context) {
+
+        try {
+            Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+            if (null != intent) {
+                return Class.forName(intent.getComponent().getClassName());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "IMPORTANT WARNING! Class not found!");
+        }
+
+        return null;
     }
 
     /**

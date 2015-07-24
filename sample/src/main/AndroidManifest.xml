@@ -27,8 +27,9 @@
             android:name="cat.ereza.sample.customactivityoncrash.activity.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+                <!--<action android:name="cat.ereza.customactivityoncrash.ERROR"/>-->
             </intent-filter>
         </activity>
 

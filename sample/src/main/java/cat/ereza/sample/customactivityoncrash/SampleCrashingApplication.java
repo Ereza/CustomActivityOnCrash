@@ -34,7 +34,7 @@ public class SampleCrashingApplication extends Application {
         CustomActivityOnCrash.setLaunchActivityEvenIfInBackground(false);
 
         //This sets the restart activity. If you don't do this, the "Restart app" button will change to "Close app".
-        CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
+//        CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
 
         //This hides the "error details" button, thus hiding the stack trace
 //        CustomActivityOnCrash.setShowErrorDetails(false);
