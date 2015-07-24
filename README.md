@@ -11,7 +11,7 @@ This library allows launching a custom activity when the app crashes, instead of
 Add the following dependency to your build.gradle:
 ```gradle
 dependencies {
-    compile 'cat.ereza:customactivityoncrash:1.1.0'
+    compile 'cat.ereza:customactivityoncrash:1.2.0'
 }
 ```
 
@@ -52,30 +52,61 @@ The error activity should show up, instead of the system dialog.
 You can call the following methods at any time to customize how the library works, although usually you will call them before calling `install(context)`:
 
 ```java
-CustomActivityOnCrash.setLaunchActivityEvenIfInBackground(false);
+CustomActivityOnCrash.setLaunchErrorActivityWhenInBackground(boolean);
 ```
-This method defines if the error activity should be launched even if the app crashed while on background.
+This method defines if the error activity should be launched when the app crashes while on background.
 By default, this is true. On API<14, it's always true since there is no way to detect if the app is in foreground.
 If you set it to false, a crash while in background won't launch the error activity nor the system dialog, so it will be a silent crash.
+The default is true.
 
 ```java
-CustomActivityOnCrash.setShowErrorDetails(false);
+CustomActivityOnCrash.setShowErrorDetails(boolean);
 ```
 This method defines if the error activity must show a button with error details.
 If you set it to false, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
+The default is true.
 
 ```java
-CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
+CustomActivityOnCrash.setEnableAppRestart(boolean);
+```
+This method defines if the error activity must show a "Restart app" button or a "Close app" button.
+If you set it to false, the button on the default error activity will close the app instead of restarting.
+Warning! If you set it to true, there is the possibility of it still displaying the "Close app" button,
+if no restart activity is specified or found!
+The default is true.
+
+```java
+CustomActivityOnCrash.setRestartActivityClass(Class<? extends Activity>);
 ```
 This method sets the activity that must be launched by the error activity when the user presses the button to restart the app.
-You should pass the initial activity of your application.
-If you don't set it, or set it to null, instead of restarting, the button will close the app.
+If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
+cat.ereza.customactivityoncrash.RESTART, and if there is none, the default launchable activity on your app.
+If no launchable activity can be found and you didn't specify any, the "restart app" button will become a "close app" button,
+even if setEnableAppRestart is set to true.
+
+As noted, you can also use the following intent-filter to specify the restart activity:
+```xml
+<intent-filter>
+    <!-- ... -->
+    <!--<action android:name="cat.ereza.customactivityoncrash.RESTART" />-->
+</intent-filter>
+```
 
 ```java
-CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
+CustomActivityOnCrash.setErrorActivityClass(Class<? extends Activity>);
 ```
 This method allows you to set a custom error activity to be launched, instead of the default one.
 Use it if you need further customization that is not just strings, colors or themes (see below).
+If you don't set it (or set it to null), the library will use first activity on your manifest that has an intent-filter with action
+cat.ereza.customactivityoncrash.ERROR, and if there is none, a default error activity from the library.
+
+As noted, you can also use the following intent-filter to specify the error activity:
+```xml
+<intent-filter>
+    <!-- ... -->
+    <!--<action android:name="cat.ereza.customactivityoncrash.ERROR" />-->
+</intent-filter>
+```
 
 **Customization of the default activity**
 
@@ -143,11 +174,12 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
 ## Incompatibilities
 
 * CustomActivityOnCrash will not work in these cases:
-    * With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
     * With any custom `UncaughtExceptionHandler` set after initializing the library, that does not call back to the original handler.
-* Your `UncaughtExceptionHandler` will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be done **after** CustomActivityOnCrash initialization).
+    * With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
+* If you use a custom `UncaughtExceptionHandler`, it will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be done **after** CustomActivityOnCrash initialization).
 * On some rare cases on devices with API<14, the app may enter a restart loop when a crash occurs. Therefore, using it on API<14 is not recommended.
 * If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases).
+* The library has not been tested with multidex enabled. It uses Class.forName() to load classes, so maybe that could cause some problem. If you test it with multidex enabled, please provide feedback!
 
 ## Disclaimers
 

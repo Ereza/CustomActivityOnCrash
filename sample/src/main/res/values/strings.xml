@@ -34,7 +34,7 @@
 
     <!-- We define some custom strings for the default error activity -->
     <!-- This only applies when using the default error activity, of course! -->
-    <!-- To see them, disable the custom error activity in SampleCrashableApplication -->
+    <!-- To see them, disable the custom error activity in SampleCrashingApplication -->
     <string name="customactivityoncrash_error_activity_error_occurred_explanation">An error occurred in this sample app. This is the default error activity with customized strings.</string>
     <string name="customactivityoncrash_error_activity_unknown_exception">No stacktrace available!</string>
     <string name="customactivityoncrash_error_activity_restart_app">Restart now</string>

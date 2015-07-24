@@ -503,6 +503,7 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return A valid activity class, or null if no suitable one is found
      */
+    @SuppressWarnings("unchecked")
     private static Class<? extends Activity> getRestartActivityClassWithIntentFilter(Context context) {
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(
                 new Intent().setAction(INTENT_ACTION_RESTART_ACTIVITY),
@@ -528,6 +529,7 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return A valid activity class, or null if no suitable one is found
      */
+    @SuppressWarnings("unchecked")
     private static Class<? extends Activity> getLauncherActivity(Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
         if (intent != null) {
@@ -572,6 +574,7 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return A valid activity class, or null if no suitable one is found
      */
+    @SuppressWarnings("unchecked")
     private static Class<? extends Activity> getErrorActivityClassWithIntentFilter(Context context) {
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(
                 new Intent().setAction(INTENT_ACTION_ERROR_ACTIVITY),
