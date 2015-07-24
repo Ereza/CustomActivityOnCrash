@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.sample.customactivityoncrash.R;
 
 public class MainActivity extends Activity {
