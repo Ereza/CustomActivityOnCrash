@@ -71,7 +71,5 @@ public class MainActivity extends Activity {
                 }.execute();
             }
         });
-
-        CustomActivityOnCrash.install(this);
     }
 }
