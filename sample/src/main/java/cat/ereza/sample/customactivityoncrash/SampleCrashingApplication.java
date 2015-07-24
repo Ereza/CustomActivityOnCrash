@@ -34,6 +34,8 @@ public class SampleCrashingApplication extends Application {
         CustomActivityOnCrash.setLaunchActivityEvenIfInBackground(false);
 
         //This sets the restart activity. If you don't do this, the "Restart app" button will change to "Close app".
+        //You can define class with Intent Filter cat.ereza.customactivityoncrash.ERROR or it will get default launcher app
+        //otherwise you can set class as follwing.
 //        CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
 
         //This hides the "error details" button, thus hiding the stack trace
