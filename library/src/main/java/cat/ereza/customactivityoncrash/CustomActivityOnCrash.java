@@ -21,8 +21,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -48,29 +46,29 @@ import cat.ereza.customactivityoncrash.activity.DefaultErrorActivity;
 @SuppressLint("NewApi")
 public final class CustomActivityOnCrash {
     //Extras passed to the error activity
-    private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
     private static final String EXTRA_RESTART_ACTIVITY_CLASS = "cat.ereza.customactivityoncrash.EXTRA_RESTART_ACTIVITY_CLASS";
     private static final String EXTRA_SHOW_ERROR_DETAILS = "cat.ereza.customactivityoncrash.EXTRA_SHOW_ERROR_DETAILS";
+    private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
 
     //General constants
     private final static String TAG = "CustomActivityOnCrash";
+    private static final String INTENT_ACTION_ERROR_ACTIVITY = "cat.ereza.customactivityoncrash.ERROR";
+    private static final String INTENT_ACTION_RESTART_ACTIVITY = "cat.ereza.customactivityoncrash.RESTART";
     private static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
     private static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android.internal.os";
     private static final int MAX_STACK_TRACE_SIZE = 131071; //128 KB - 1
-    private static final String INTENT_ACTION_ERROR_ACTIVITY = "cat.ereza.customactivityoncrash.ERROR";
 
     //Internal variables
-    private static WeakReference<Activity> lastActivityCreated = new WeakReference<>(null);
     private static Application application;
+    private static WeakReference<Activity> lastActivityCreated = new WeakReference<>(null);
     private static boolean isInBackground = false;
 
     //Settable properties and their defaults
-    private static boolean launchActivityEvenIfInBackground = true;
-    private static Class<? extends Activity> errorActivityClass = DefaultErrorActivity.class;
-    private static Class<? extends Activity> restartActivityClass = null;
-    private static Class restartActivityClassFromIntentFilter = null;
+    private static boolean launchErrorActivityWhenInBackground = true;
     private static boolean showErrorDetails = true;
     private static boolean enableAppRestart = true;
+    private static Class<? extends Activity> errorActivityClass = null;
+    private static Class<? extends Activity> restartActivityClass = null;
 
     /**
      * Installs CustomActivityOnCrash on the application using the default error activity.
@@ -85,9 +83,7 @@ public final class CustomActivityOnCrash {
                 if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     Log.w(TAG, "CustomActivityOnCrash will be installed, but may not be reliable in API lower than 14");
                 }
-                if (enableAppRestart && null == CustomActivityOnCrash.restartActivityClass) {
-                    guessRestartActivityClass(context);
-                }
+
                 //INSTALL!
                 Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
 
@@ -106,10 +102,14 @@ public final class CustomActivityOnCrash {
                         public void uncaughtException(Thread thread, final Throwable throwable) {
                             Log.e(TAG, "App has crashed, executing CustomActivityOnCrash's UncaughtExceptionHandler", throwable);
 
+                            if (errorActivityClass == null) {
+                                errorActivityClass = guessErrorActivityClass(application);
+                            }
+
                             if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
                                 Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
                             } else {
-                                if (launchActivityEvenIfInBackground || !isInBackground) {
+                                if (launchErrorActivityWhenInBackground || !isInBackground) {
                                     final Intent intent = new Intent(application, errorActivityClass);
                                     StringWriter sw = new StringWriter();
                                     PrintWriter pw = new PrintWriter(sw);
@@ -125,10 +125,17 @@ public final class CustomActivityOnCrash {
                                         stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
                                     }
 
+                                    if (enableAppRestart && restartActivityClass == null) {
+                                        //We can set the restartActivityClass because the app will terminate right now,
+                                        //and when relaunched, will be null again by default.
+                                        restartActivityClass = guessRestartActivityClass(application);
+                                    } else if (!enableAppRestart) {
+                                        //In case someone sets the activity and then decides to not restart
+                                        restartActivityClass = null;
+                                    }
+
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
-                                    intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, CustomActivityOnCrash.restartActivityClass
-                                            == null ? CustomActivityOnCrash.restartActivityClassFromIntentFilter :
-                                            CustomActivityOnCrash.restartActivityClass);
+                                    intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
                                     intent.putExtra(EXTRA_SHOW_ERROR_DETAILS, showErrorDetails);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                     application.startActivity(intent);
@@ -206,20 +213,6 @@ public final class CustomActivityOnCrash {
     }
 
     /**
-     * Enable app restart, it will show a button to restart app, enabled by default
-     */
-    public static void enableAppRestart() {
-        CustomActivityOnCrash.enableAppRestart = true;
-    }
-
-    /**
-     * Enable app restart, it will show a button to close app
-     */
-    public static void disableAppRestart() {
-        CustomActivityOnCrash.enableAppRestart = false;
-    }
-
-    /**
      * Given an Intent, returns if the error details button should be displayed.
      *
      * @param intent The Intent. Must not be null.
@@ -249,7 +242,7 @@ public final class CustomActivityOnCrash {
     public static String getAllErrorDetailsFromIntent(Context context, Intent intent) {
         //I don't think that this needs localization because it's a development string...
 
-        Date crashDate = new Date();
+        Date currentDate = new Date();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
         //Get build date
@@ -262,7 +255,7 @@ public final class CustomActivityOnCrash {
 
         errorDetails += "Build version: " + versionName + " \n";
         errorDetails += "Build date: " + buildDateAsString + " \n";
-        errorDetails += "Crash date: " + dateFormat.format(crashDate) + " \n";
+        errorDetails += "Current date: " + dateFormat.format(currentDate) + " \n";
         errorDetails += "Device: " + getDeviceModelName() + " \n\n";
         errorDetails += "Stack trace:  \n";
         errorDetails += getStackTraceFromIntent(intent);
@@ -290,111 +283,23 @@ public final class CustomActivityOnCrash {
     /// SETTERS AND GETTERS FOR THE CUSTOMIZABLE PROPERTIES
 
     /**
-     * Returns the error activity class to launch when a crash occurs.
-     *
-     * @return The class, or DefaultErrorActivity if not set.
-     */
-    public static Class<? extends Activity> getErrorActivityClass() {
-        return errorActivityClass;
-    }
-
-    /**
-     * Sets the error activity class to launch when a crash occurs.
-     * If null,the default error activity will be used.
-     */
-    public static void setErrorActivityClass(Class<? extends Activity> errorActivityClass) {
-        if (errorActivityClass != null) {
-            CustomActivityOnCrash.errorActivityClass = errorActivityClass;
-        } else {
-            CustomActivityOnCrash.errorActivityClass = DefaultErrorActivity.class;
-        }
-    }
-
-    /**
-     * Returns the main activity class that the error activity must launch when a crash occurs.
-     *
-     * @return The class, or null if not set.
-     */
-    public static Class<? extends Activity> getRestartActivityClass() {
-        return restartActivityClass;
-    }
-
-    /**
-     * Sets the main activity class that the error activity must launch when a crash occurs.
-     * If not set or set to null, the default error activity will close instead.
-     */
-    public static void setRestartActivityClass(Class<? extends Activity> restartActivityClass) {
-        CustomActivityOnCrash.restartActivityClass = restartActivityClass;
-    }
-
-    /**
-     * It will first get activity from AndroidManifest with intent filter <action android:name="cat.ereza.customactivityoncrash.ERROR" />
-     * if cannot find then it will get the default launcher.
-     *
-     * @param context
-     */
-    private static void guessRestartActivityClass(Context context) {
-        //if action is defined
-        restartActivityClassFromIntentFilter = CustomActivityOnCrash.getRestartActivityClassWithIntentFilter(context);
-        //get the default launcher
-        if (null == restartActivityClassFromIntentFilter) {
-            restartActivityClassFromIntentFilter = getLauncherActivity(context);
-        }
-
-    }
-
-    private static Class<?> getRestartActivityClassWithIntentFilter(Context context) {
-
-        List<ResolveInfo> infos = context.getPackageManager().queryIntentActivities(
-                new Intent().setAction(INTENT_ACTION_ERROR_ACTIVITY),
-                PackageManager.GET_RESOLVED_FILTER);
-
-        if (null != infos && infos.size() > 0) {
-            ResolveInfo resolveInfo = infos.get(0);
-            try {
-                return Class.forName(resolveInfo.activityInfo.name);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                Log.e(TAG, "IMPORTANT WARNING! Class not found!");
-            }
-        }
-
-        return null;
-    }
-
-    private static Class<?> getLauncherActivity(Context context) {
-
-        try {
-            Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
-            if (null != intent) {
-                return Class.forName(intent.getComponent().getClassName());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "IMPORTANT WARNING! Class not found!");
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns if the error activity must be launched even if the app is on background.
+     * Returns if the error activity must be launched when the app is on background.
      *
      * @return true if it will be launched, false otherwise.
      */
-    public static boolean isLaunchActivityEvenIfInBackground() {
-        return launchActivityEvenIfInBackground;
+    public static boolean isLaunchErrorActivityWhenInBackground() {
+        return launchErrorActivityWhenInBackground;
     }
 
     /**
-     * Defines if the error activity must be launched even if the app is on background.
-     * Set it to true if you want to launch the error activity even if the app is in background,
+     * Defines if the error activity must be launched when the app is on background.
+     * Set it to true if you want to launch the error activity when the app is in background,
      * false if you want it not to launch and crash silently.
      * This has no effect in API<14 and the error activity is always launched.
      * The default is true (the app will be brought to front when a crash occurs).
      */
-    public static void setLaunchActivityEvenIfInBackground(boolean launchActivityEvenIfInBackground) {
-        CustomActivityOnCrash.launchActivityEvenIfInBackground = launchActivityEvenIfInBackground;
+    public static void setLaunchErrorActivityWhenInBackground(boolean launchErrorActivityWhenInBackground) {
+        CustomActivityOnCrash.launchErrorActivityWhenInBackground = launchErrorActivityWhenInBackground;
     }
 
     /**
@@ -414,6 +319,63 @@ public final class CustomActivityOnCrash {
      */
     public static void setShowErrorDetails(boolean showErrorDetails) {
         CustomActivityOnCrash.showErrorDetails = showErrorDetails;
+    }
+
+    /**
+     * Returns if the error activity should show a restart button.
+     * Note that even if restart is enabled, a valid restart activity could not be found.
+     * In that case, a close button will still be used.
+     *
+     * @return true if a restart button should be shown, false if a close button must be used.
+     */
+    public static boolean isEnableAppRestart() {
+        return enableAppRestart;
+    }
+
+    /**
+     * Defines if the error activity should show a restart button.
+     * Set it to true if you want to show a restart button,
+     * false if you want to show a close button.
+     * Note that even if restart is enabled, a valid restart activity could not be found.
+     * In that case, a close button will still be used.
+     * The default is true.
+     */
+    public static void setEnableAppRestart(boolean enableAppRestart) {
+        CustomActivityOnCrash.enableAppRestart = enableAppRestart;
+    }
+
+    /**
+     * Returns the error activity class to launch when a crash occurs.
+     *
+     * @return The class, or null if not set.
+     */
+    public static Class<? extends Activity> getErrorActivityClass() {
+        return errorActivityClass;
+    }
+
+    /**
+     * Sets the error activity class to launch when a crash occurs.
+     * If null,the default error activity will be used.
+     */
+    public static void setErrorActivityClass(Class<? extends Activity> errorActivityClass) {
+        CustomActivityOnCrash.errorActivityClass = errorActivityClass;
+    }
+
+    /**
+     * Returns the main activity class that the error activity must launch when a crash occurs.
+     *
+     * @return The class, or null if not set.
+     */
+    public static Class<? extends Activity> getRestartActivityClass() {
+        return restartActivityClass;
+    }
+
+    /**
+     * Sets the main activity class that the error activity must launch when a crash occurs.
+     * If not set or set to null, the default error activity will close instead.
+     */
+    public static void setRestartActivityClass(Class<? extends Activity> restartActivityClass) {
+        CustomActivityOnCrash.restartActivityClass = restartActivityClass;
     }
 
 
@@ -511,8 +473,126 @@ public final class CustomActivityOnCrash {
         }
     }
 
+    /**
+     * INTERNAL method used to guess which activity must be called from the error activity to restart the app.
+     * It will first get activities from the AndroidManifest with intent filter <action android:name="cat.ereza.customactivityoncrash.RESTART" />,
+     * if it cannot find them, then it will get the default launcher.
+     * If there is no default launcher, this returns null.
+     *
+     * @param context A valid context. Must not be null.
+     * @return The guessed restart activity class, or null if no suitable one is found
+     */
+    private static Class<? extends Activity> guessRestartActivityClass(Context context) {
+        Class<? extends Activity> resolvedActivityClass;
+
+        //If action is defined, use that
+        resolvedActivityClass = CustomActivityOnCrash.getRestartActivityClassWithIntentFilter(context);
+
+        //Else, get the default launcher activity
+        if (resolvedActivityClass == null) {
+            resolvedActivityClass = getLauncherActivity(context);
+        }
+
+        return resolvedActivityClass;
+    }
+
+    /**
+     * INTERNAL method used to get the first activity with an intent-filter <action android:name="cat.ereza.customactivityoncrash.RESTART" />,
+     * If there is no activity with that intent filter, this returns null.
+     *
+     * @param context A valid context. Must not be null.
+     * @return A valid activity class, or null if no suitable one is found
+     */
+    private static Class<? extends Activity> getRestartActivityClassWithIntentFilter(Context context) {
+        List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(
+                new Intent().setAction(INTENT_ACTION_RESTART_ACTIVITY),
+                PackageManager.GET_RESOLVED_FILTER);
+
+        if (resolveInfos != null && resolveInfos.size() > 0) {
+            ResolveInfo resolveInfo = resolveInfos.get(0);
+            try {
+                return (Class<? extends Activity>) Class.forName(resolveInfo.activityInfo.name);
+            } catch (ClassNotFoundException e) {
+                //Should not happen, print it to the log!
+                Log.e(TAG, "Failed when resolving the restart activity class via intent filter, stack trace follows!", e);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * INTERNAL method used to get the default launcher activity for the app.
+     * If there is no launchable activity, this returns null.
+     *
+     * @param context A valid context. Must not be null.
+     * @return A valid activity class, or null if no suitable one is found
+     */
+    private static Class<? extends Activity> getLauncherActivity(Context context) {
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+        if (intent != null) {
+            try {
+                return (Class<? extends Activity>) Class.forName(intent.getComponent().getClassName());
+            } catch (ClassNotFoundException e) {
+                //Should not happen, print it to the log!
+                Log.e(TAG, "Failed when resolving the restart activity class via getLaunchIntentForPackage, stack trace follows!", e);
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * INTERNAL method used to guess which error activity must be called when the app crashes.
+     * It will first get activities from the AndroidManifest with intent filter <action android:name="cat.ereza.customactivityoncrash.ERROR" />,
+     * if it cannot find them, then it will use the default error activity.
+     *
+     * @param context A valid context. Must not be null.
+     * @return The guessed error activity class, or the default error activity if not found
+     */
+    private static Class<? extends Activity> guessErrorActivityClass(Context context) {
+        Class<? extends Activity> resolvedActivityClass;
+
+        //If action is defined, use that
+        resolvedActivityClass = CustomActivityOnCrash.getErrorActivityClassWithIntentFilter(context);
+
+        //Else, get the default launcher activity
+        if (resolvedActivityClass == null) {
+            resolvedActivityClass = DefaultErrorActivity.class;
+        }
+
+        return resolvedActivityClass;
+    }
+
+    /**
+     * INTERNAL method used to get the first activity with an intent-filter <action android:name="cat.ereza.customactivityoncrash.ERROR" />,
+     * If there is no activity with that intent filter, this returns null.
+     *
+     * @param context A valid context. Must not be null.
+     * @return A valid activity class, or null if no suitable one is found
+     */
+    private static Class<? extends Activity> getErrorActivityClassWithIntentFilter(Context context) {
+        List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(
+                new Intent().setAction(INTENT_ACTION_ERROR_ACTIVITY),
+                PackageManager.GET_RESOLVED_FILTER);
+
+        if (resolveInfos != null && resolveInfos.size() > 0) {
+            ResolveInfo resolveInfo = resolveInfos.get(0);
+            try {
+                return (Class<? extends Activity>) Class.forName(resolveInfo.activityInfo.name);
+            } catch (ClassNotFoundException e) {
+                //Should not happen, print it to the log!
+                Log.e(TAG, "Failed when resolving the error activity class via intent filter, stack trace follows!", e);
+            }
+        }
+
+        return null;
+    }
+
 
     /// DEPRECATED METHODS - DO NOT USE! - TO BE REMOVED IN LATER VERSIONS!
+
 
     /**
      * Initializes CustomActivityOnCrash on the application.
@@ -524,7 +604,7 @@ public final class CustomActivityOnCrash {
     @Deprecated
     public static void init(Context context, final Class<? extends Activity> errorActivityClass) {
         setErrorActivityClass(errorActivityClass);
-        setLaunchActivityEvenIfInBackground(true);
+        setLaunchErrorActivityWhenInBackground(true);
         install(context);
     }
 
@@ -539,7 +619,32 @@ public final class CustomActivityOnCrash {
     @Deprecated
     public static void init(Context context, final Class<? extends Activity> errorActivityClass, boolean launchActivityEvenIfInBackground) {
         setErrorActivityClass(errorActivityClass);
-        setLaunchActivityEvenIfInBackground(launchActivityEvenIfInBackground);
+        setLaunchErrorActivityWhenInBackground(launchActivityEvenIfInBackground);
         install(context);
+    }
+
+    /**
+     * Returns if the error activity must be launched even if the app is on background.
+     *
+     * @return true if it will be launched, false otherwise.
+     * @deprecated use isLaunchErrorActivityWhenInBackground()
+     */
+    @Deprecated
+    public static boolean isLaunchActivityEvenIfInBackground() {
+        return isLaunchErrorActivityWhenInBackground();
+    }
+
+    /**
+     * Defines if the error activity must be launched even if the app is on background.
+     * Set it to true if you want to launch the error activity even if the app is in background,
+     * false if you want it not to launch and crash silently.
+     * This has no effect in API<14 and the error activity is always launched.
+     * The default is true (the app will be brought to front when a crash occurs).
+     *
+     * @deprecated use setLaunchErrorActivityWhenInBackground(boolean)
+     */
+    @Deprecated
+    public static void setLaunchActivityEvenIfInBackground(boolean launchActivityEvenIfInBackground) {
+        setLaunchErrorActivityWhenInBackground(launchActivityEvenIfInBackground);
     }
 }
