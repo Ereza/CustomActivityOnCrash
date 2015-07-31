@@ -45,9 +45,10 @@ public class CustomErrorActivity extends Activity {
         //CustomActivityOnCrash.getAllErrorDetailsFromIntent(context, getIntent()): returns all error details including stacktrace as a string
         //CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent()): returns the class of the restart activity to launch, or null if none
 
-        //Now, treat here the error as you wish. If you allow the user to restart the app,
-        //don't forget to finish the activity, otherwise you will get the CustomErrorActivity
-        //on the activity stack and it will be visible again under some circumstances.
+        //Now, treat here the error as you wish. If you allow the user to restart or close the app,
+        //don't forget to call the appropriate methods.
+        //Otherwise, if you don't finish the activity, you will get the CustomErrorActivity on the activity stack and it will be visible again under some circumstances.
+        //Also, you will get multiprocess problems in API<17.
 
         TextView errorDetailsText = (TextView) findViewById(R.id.error_details);
         errorDetailsText.setText(CustomActivityOnCrash.getStackTraceFromIntent(getIntent()));
