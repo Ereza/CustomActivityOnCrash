@@ -62,15 +62,14 @@ public class CustomErrorActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(CustomErrorActivity.this, restartActivityClass);
-                    finish();
-                    startActivity(intent);
+                    CustomActivityOnCrash.restartApplicationWithIntent(CustomErrorActivity.this, intent);
                 }
             });
         } else {
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    finish();
+                    CustomActivityOnCrash.closeApplication(CustomErrorActivity.this);
                 }
             });
         }

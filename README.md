@@ -99,6 +99,15 @@ This method allows you to set a custom error activity to be launched, instead of
 Use it if you need further customization that is not just strings, colors or themes (see below).
 If you don't set it (or set it to null), the library will use first activity on your manifest that has an intent-filter with action
 cat.ereza.customactivityoncrash.ERROR, and if there is none, a default error activity from the library.
+If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `@string/customactivityoncrash_process`.
+
+Example:
+```xml
+<activity
+    android:name="cat.ereza.sample.customactivityoncrash.activity.CustomErrorActivity"
+    android:label="@string/error_title"
+    android:process="@string/customactivityoncrash_process" />
+```
 
 As noted, you can also use the following intent-filter to specify the error activity:
 ```xml
@@ -153,6 +162,18 @@ Returns several error details including the stack trace that caused the error, a
 CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
 ```
 Returns the class of the activity you have to launch to restart the app, or null if not set.
+
+```java
+CustomActivityOnCrash.restartApplicationWithIntent(activity, intent);
+```
+Kills the current process and restarts the app again with an `startActivity()` to the passed intent.
+You **MUST** call this to restart the app, or you will end up having several Application class instances and experience multiprocess issues in API<17.
+
+```java
+CustomActivityOnCrash.closeApplication(activity);
+```
+Closes the app and kills the current process.
+You **MUST** call this to close the app, or you will end up having several Application class instances and experience multiprocess issues in API<17.
 
 *The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.*
 

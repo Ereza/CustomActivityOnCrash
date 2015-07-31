@@ -18,6 +18,7 @@ package cat.ereza.customactivityoncrash;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -149,8 +150,7 @@ public final class CustomActivityOnCrash {
                                 lastActivity.finish();
                                 lastActivityCreated.clear();
                             }
-                            android.os.Process.killProcess(android.os.Process.myPid());
-                            System.exit(10);
+                            killCurrentProcess();
                         }
                     });
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -276,6 +276,33 @@ public final class CustomActivityOnCrash {
             return (Class<? extends Activity>) serializedClass;
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Given an Intent, restarts the app and launches a startActivity to that intent.
+     * Must only be used from your error activity.
+     *
+     * @param activity The current error activity. Must not be null.
+     * @param intent   The Intent. Must not be null.
+     */
+    public static void restartApplicationWithIntent(Activity activity, Intent intent) {
+        activity.finish();
+        activity.startActivity(intent);
+        if (isRunningOnErrorProcess(activity)) {
+            killCurrentProcess();
+        }
+    }
+
+    /**
+     * Closes the app. Must only be used from your error activity.
+     *
+     * @param activity The current error activity. Must not be null.
+     */
+    public static void closeApplication(Activity activity) {
+        activity.finish();
+        if (isRunningOnErrorProcess(activity)) {
+            killCurrentProcess();
         }
     }
 
@@ -591,5 +618,38 @@ public final class CustomActivityOnCrash {
         }
 
         return null;
+    }
+
+    /**
+     * INTERNAL method used to know if the error activity is running on the error activity process.
+     * If you have implemented CustomActivityonCrash correctly, this should only be true on API<17.
+     *
+     * @param context A valid context. Must not be null.
+     * @return true if the current process is running on the error activity process, false otherwise.
+     */
+    private static boolean isRunningOnErrorProcess(Context context) {
+        String currentProcName = "";
+        int pid = android.os.Process.myPid();
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+            if (processInfo.pid == pid) {
+                currentProcName = processInfo.processName;
+                break;
+            }
+        }
+
+        String caocProcessName = context.getString(R.string.customactivityoncrash_process);
+
+        //We check for caocProcessName.startsWith(":") because if we don't, substring will crash when a process is specified but it's on API>=17
+        return (caocProcessName.startsWith(":") && currentProcName.contains(":") && currentProcName.split(":")[1].equals(caocProcessName.substring(1)));
+    }
+
+    /**
+     * INTERNAL method that kills the current process.
+     * It is used after restarting or killing the app.
+     */
+    private static void killCurrentProcess() {
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(10);
     }
 }

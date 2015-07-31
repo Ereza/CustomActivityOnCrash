@@ -50,15 +50,14 @@ public final class DefaultErrorActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
-                    finish();
-                    startActivity(intent);
+                    CustomActivityOnCrash.restartApplicationWithIntent(DefaultErrorActivity.this, intent);
                 }
             });
         } else {
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    finish();
+                    CustomActivityOnCrash.closeApplication(DefaultErrorActivity.this);
                 }
             });
         }

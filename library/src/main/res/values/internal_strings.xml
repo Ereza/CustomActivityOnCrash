@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2015 Eduard Ereza Martínez
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,6 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cat.ereza.customactivityoncrash">
-
-    <application>
-
-        <activity
-            android:name="cat.ereza.customactivityoncrash.activity.DefaultErrorActivity"
-            android:process="@string/customactivityoncrash_process"
-            android:theme="@style/CustomActivityOnCrashTheme" />
-
-    </application>
-
-</manifest>
+<resources>
+    <string name="customactivityoncrash_process">:error_activity</string>
+</resources>
