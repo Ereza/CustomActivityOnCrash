@@ -24,6 +24,8 @@
             android:process=":error_activity"
             android:theme="@style/CustomActivityOnCrashTheme" />
 
+        <activity android:name=".activity.ClearStack"></activity>
+
     </application>
 
 </manifest>
