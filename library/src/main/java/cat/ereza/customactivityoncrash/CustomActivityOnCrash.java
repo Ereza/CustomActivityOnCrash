@@ -45,6 +45,7 @@ import cat.ereza.customactivityoncrash.activity.DefaultErrorActivity;
 
 @SuppressLint("NewApi")
 public final class CustomActivityOnCrash {
+
     //Extras passed to the error activity
     private static final String EXTRA_RESTART_ACTIVITY_CLASS = "cat.ereza.customactivityoncrash.EXTRA_RESTART_ACTIVITY_CLASS";
     private static final String EXTRA_SHOW_ERROR_DETAILS = "cat.ereza.customactivityoncrash.EXTRA_SHOW_ERROR_DETAILS";
@@ -137,7 +138,7 @@ public final class CustomActivityOnCrash {
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
                                     intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
                                     intent.putExtra(EXTRA_SHOW_ERROR_DETAILS, showErrorDetails);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     application.startActivity(intent);
                                 }
                             }
@@ -280,12 +281,15 @@ public final class CustomActivityOnCrash {
 
     /**
      * Given an Intent, restarts the app and launches a startActivity to that intent.
+     * The flags NEW_TASK and CLEAR_TASK are set if the Intent does not have them, to ensure
+     * the app stack is fully cleared.
      * Must only be used from your error activity.
      *
      * @param activity The current error activity. Must not be null.
      * @param intent   The Intent. Must not be null.
      */
     public static void restartApplicationWithIntent(Activity activity, Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity.finish();
         activity.startActivity(intent);
         killCurrentProcess();
@@ -565,7 +569,6 @@ public final class CustomActivityOnCrash {
 
         return null;
     }
-
 
     /**
      * INTERNAL method used to guess which error activity must be called when the app crashes.
