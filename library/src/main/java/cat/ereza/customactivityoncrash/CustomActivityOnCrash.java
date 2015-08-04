@@ -18,7 +18,6 @@ package cat.ereza.customactivityoncrash;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -289,9 +288,7 @@ public final class CustomActivityOnCrash {
     public static void restartApplicationWithIntent(Activity activity, Intent intent) {
         activity.finish();
         activity.startActivity(intent);
-        if (isRunningOnErrorProcess(activity)) {
-            killCurrentProcess();
-        }
+        killCurrentProcess();
     }
 
     /**
@@ -301,9 +298,7 @@ public final class CustomActivityOnCrash {
      */
     public static void closeApplication(Activity activity) {
         activity.finish();
-        if (isRunningOnErrorProcess(activity)) {
-            killCurrentProcess();
-        }
+        killCurrentProcess();
     }
 
 
@@ -618,30 +613,6 @@ public final class CustomActivityOnCrash {
         }
 
         return null;
-    }
-
-    /**
-     * INTERNAL method used to know if the error activity is running on the error activity process.
-     * If you have implemented CustomActivityonCrash correctly, this should only be true on API<17.
-     *
-     * @param context A valid context. Must not be null.
-     * @return true if the current process is running on the error activity process, false otherwise.
-     */
-    private static boolean isRunningOnErrorProcess(Context context) {
-        String currentProcName = "";
-        int pid = android.os.Process.myPid();
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
-            if (processInfo.pid == pid) {
-                currentProcName = processInfo.processName;
-                break;
-            }
-        }
-
-        String caocProcessName = context.getString(R.string.customactivityoncrash_process);
-
-        //We check for caocProcessName.startsWith(":") because if we don't, substring will crash when a process is specified but it's on API>=17
-        return (caocProcessName.startsWith(":") && currentProcName.contains(":") && currentProcName.split(":")[1].equals(caocProcessName.substring(1)));
     }
 
     /**
