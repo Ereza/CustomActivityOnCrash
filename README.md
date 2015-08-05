@@ -99,14 +99,14 @@ This method allows you to set a custom error activity to be launched, instead of
 Use it if you need further customization that is not just strings, colors or themes (see below).
 If you don't set it (or set it to null), the library will use first activity on your manifest that has an intent-filter with action
 cat.ereza.customactivityoncrash.ERROR, and if there is none, a default error activity from the library.
-If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `@string/customactivityoncrash_process`.
+If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`.
 
 Example:
 ```xml
 <activity
     android:name="cat.ereza.sample.customactivityoncrash.activity.CustomErrorActivity"
     android:label="@string/error_title"
-    android:process="@string/customactivityoncrash_process" />
+    android:process=":error_activity" />
 ```
 
 As noted, you can also use the following intent-filter to specify the error activity:
