@@ -201,6 +201,7 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
 * On some rare cases on devices with API<14, the app may enter a restart loop when a crash occurs. Therefore, using it on API<14 is not recommended.
 * If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases).
 * The library has not been tested with multidex enabled. It uses Class.forName() to load classes, so maybe that could cause some problem. If you test it with multidex enabled, please provide feedback!
+* The library has not been tested with multiprocess apps. If you test it with such configuration, please provide feedback too!
 
 ## Disclaimers
 
