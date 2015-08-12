@@ -22,4 +22,6 @@
     <string name="customactivityoncrash_error_activity_error_details">Error details</string>
     <string name="customactivityoncrash_error_activity_error_details_title">Error details</string>
     <string name="customactivityoncrash_error_activity_error_details_close">Close</string>
+    <string name="customactivityoncrash_error_activity_error_details_copy">Copy to clipboard</string>
+    <string name="customactivityoncrash_error_activity_error_details_copied">Copied to clipboard</string>
 </resources>
