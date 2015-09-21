@@ -56,33 +56,40 @@ CustomActivityOnCrash.setLaunchErrorActivityWhenInBackground(boolean);
 ```
 This method defines if the error activity should be launched when the app crashes while on background.
 By default, this is true. On API<14, it's always true since there is no way to detect if the app is in foreground.
-If you set it to false, a crash while in background won't launch the error activity nor the system dialog, so it will be a silent crash.
-The default is true.
+If you set it to `false`, a crash while in background won't launch the error activity nor the system dialog, so it will be a silent crash.
+The default is `true`.
 
 ```java
 CustomActivityOnCrash.setShowErrorDetails(boolean);
 ```
 This method defines if the error activity must show a button with error details.
-If you set it to false, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
-The default is true.
+If you set it to `false`, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
+The default is `true`.
+
+```java
+CustomActivityOnCrash.setDefaultErrorActivityDrawable(int);
+```
+This method allows changing the default upside-down bug image with an image of your choice.
+You may pass a resource id for a drawable or a mipmap.
+The default is `R.drawable.customactivityoncrash_error_image`.
 
 ```java
 CustomActivityOnCrash.setEnableAppRestart(boolean);
 ```
 This method defines if the error activity must show a "Restart app" button or a "Close app" button.
-If you set it to false, the button on the default error activity will close the app instead of restarting.
-Warning! If you set it to true, there is the possibility of it still displaying the "Close app" button,
+If you set it to `false`, the button on the default error activity will close the app instead of restarting.
+Warning! If you set it to `true`, there is the possibility of it still displaying the "Close app" button,
 if no restart activity is specified or found!
-The default is true.
+The default is `true`.
 
 ```java
 CustomActivityOnCrash.setRestartActivityClass(Class<? extends Activity>);
 ```
 This method sets the activity that must be launched by the error activity when the user presses the button to restart the app.
 If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
-cat.ereza.customactivityoncrash.RESTART, and if there is none, the default launchable activity on your app.
+`cat.ereza.customactivityoncrash.RESTART`, and if there is none, the default launchable activity on your app.
 If no launchable activity can be found and you didn't specify any, the "restart app" button will become a "close app" button,
-even if setEnableAppRestart is set to true.
+even if `setEnableAppRestart` is set to `true`.
 
 As noted, you can also use the following intent-filter to specify the restart activity:
 ```xml
@@ -98,7 +105,7 @@ CustomActivityOnCrash.setErrorActivityClass(Class<? extends Activity>);
 This method allows you to set a custom error activity to be launched, instead of the default one.
 Use it if you need further customization that is not just strings, colors or themes (see below).
 If you don't set it (or set it to null), the library will use first activity on your manifest that has an intent-filter with action
-cat.ereza.customactivityoncrash.ERROR, and if there is none, a default error activity from the library.
+`cat.ereza.customactivityoncrash.ERROR`, and if there is none, a default error activity from the library.
 If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`.
 
 Example:
@@ -128,6 +135,7 @@ You can override the default error activity theme by defining a theme in your ap
 *Image:*
 
 By default, an image of a bug is displayed. You can change it to any image by creating a `customactivityoncrash_error_image` drawable on all density buckets (mdpi, hdpi, xhdpi, xxhdpi and xxxhdpi).
+You can also use the provided `CustomActivityOnCrash.setDefaultErrorActivityDrawable(int)` method.
 
 *Strings:*
 
@@ -140,6 +148,9 @@ You can provide new strings and translations for the default error activity stri
     <string name="customactivityoncrash_error_activity_error_details">Error details</string>
     <string name="customactivityoncrash_error_activity_error_details_title">Error details</string>
     <string name="customactivityoncrash_error_activity_error_details_close">Close</string>
+    <string name="customactivityoncrash_error_activity_error_details_copy">Copy to clipboard</string>
+    <string name="customactivityoncrash_error_activity_error_details_copied">Copied to clipboard</string>
+    <string name="customactivityoncrash_error_activity_error_details_clipboard_label">Error information</string>
 ```
 
 *There is a `sample` project module with examples of these overrides. If in doubt, check the code in that module.*
@@ -161,13 +172,13 @@ Returns several error details including the stack trace that caused the error, a
 ```java
 CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
 ```
-Returns the class of the activity you have to launch to restart the app, or null if not set.
+Returns the class of the activity you have to launch to restart the app, or `null` if not set.
 
 ```java
 CustomActivityOnCrash.restartApplicationWithIntent(activity, intent);
 ```
 Kills the current process and restarts the app again with an `startActivity()` to the passed intent.
-You **MUST** call this to restart the app, or you will end up having several Application class instances and experience multiprocess issues in API<17.
+You **MUST** call this to restart the app, or you will end up having several `Application` class instances and experience multiprocess issues in API<17.
 
 ```java
 CustomActivityOnCrash.closeApplication(activity);

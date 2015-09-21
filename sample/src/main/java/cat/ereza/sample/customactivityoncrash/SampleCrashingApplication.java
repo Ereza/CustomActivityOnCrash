@@ -46,6 +46,10 @@ public class SampleCrashingApplication extends Application {
         //restart activity is found!
 //        CustomActivityOnCrash.setEnableAppRestart(false);
 
+        //This shows a different image on the error activity, instead of the default upside-down bug.
+        //You may use a drawable or a mipmap.
+//        CustomActivityOnCrash.setDefaultErrorActivityDrawable(R.mipmap.ic_launcher);
+
         //This sets a custom error activity class instead of the default one.
         //If you set this, this will be used. However, you can also set it with an intent-filter:
         //  <action android:name="cat.ereza.customactivityoncrash.ERROR" />

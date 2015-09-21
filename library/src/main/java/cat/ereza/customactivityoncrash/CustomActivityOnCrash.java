@@ -50,6 +50,7 @@ public final class CustomActivityOnCrash {
     private static final String EXTRA_RESTART_ACTIVITY_CLASS = "cat.ereza.customactivityoncrash.EXTRA_RESTART_ACTIVITY_CLASS";
     private static final String EXTRA_SHOW_ERROR_DETAILS = "cat.ereza.customactivityoncrash.EXTRA_SHOW_ERROR_DETAILS";
     private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
+    private static final String EXTRA_IMAGE_DRAWABLE_ID = "cat.ereza.customactivityoncrash.EXTRA_IMAGE_DRAWABLE_ID";
 
     //General constants
     private final static String TAG = "CustomActivityOnCrash";
@@ -68,6 +69,7 @@ public final class CustomActivityOnCrash {
     private static boolean launchErrorActivityWhenInBackground = true;
     private static boolean showErrorDetails = true;
     private static boolean enableAppRestart = true;
+    private static int defaultErrorActivityDrawableId = R.drawable.customactivityoncrash_error_image;
     private static Class<? extends Activity> errorActivityClass = null;
     private static Class<? extends Activity> restartActivityClass = null;
 
@@ -138,6 +140,7 @@ public final class CustomActivityOnCrash {
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
                                     intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
                                     intent.putExtra(EXTRA_SHOW_ERROR_DETAILS, showErrorDetails);
+                                    intent.putExtra(EXTRA_IMAGE_DRAWABLE_ID, defaultErrorActivityDrawableId);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     application.startActivity(intent);
                                 }
@@ -220,6 +223,16 @@ public final class CustomActivityOnCrash {
      */
     public static boolean isShowErrorDetailsFromIntent(Intent intent) {
         return intent.getBooleanExtra(CustomActivityOnCrash.EXTRA_SHOW_ERROR_DETAILS, true);
+    }
+
+    /**
+     * Given an Intent, returns the drawable id of the image to show on the default error activity.
+     *
+     * @param intent The Intent. Must not be null.
+     * @return The id of the drawable to use.
+     */
+    public static int getDefaultErrorActivityDrawableIdFromIntent(Intent intent) {
+        return intent.getIntExtra(CustomActivityOnCrash.EXTRA_IMAGE_DRAWABLE_ID, R.drawable.customactivityoncrash_error_image);
     }
 
     /**
@@ -345,6 +358,24 @@ public final class CustomActivityOnCrash {
      */
     public static void setShowErrorDetails(boolean showErrorDetails) {
         CustomActivityOnCrash.showErrorDetails = showErrorDetails;
+    }
+
+    /**
+     * Returns the default error activity drawable identifier.
+     *
+     * @return the default error activity drawable identifier
+     */
+    public static int getDefaultErrorActivityDrawable() {
+        return defaultErrorActivityDrawableId;
+    }
+
+    /**
+     * Defines which drawable to use in the default error activity image.
+     * Set this if you want to use an image other than the default one.
+     * The default is R.drawable.customactivityoncrash_error_image (a cute upside-down bug).
+     */
+    public static void setDefaultErrorActivityDrawable(int defaultErrorActivityDrawableId) {
+        CustomActivityOnCrash.defaultErrorActivityDrawableId = defaultErrorActivityDrawableId;
     }
 
     /**

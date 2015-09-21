@@ -16,7 +16,6 @@
 
 package cat.ereza.customactivityoncrash.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -28,9 +27,10 @@ import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
-
 import android.widget.Toast;
+
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.R;
 
@@ -82,12 +82,13 @@ public final class DefaultErrorActivity extends Activity {
                             .setMessage(CustomActivityOnCrash.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent()))
                             .setPositiveButton(R.string.customactivityoncrash_error_activity_error_details_close, null)
                             .setNeutralButton(R.string.customactivityoncrash_error_activity_error_details_copy,
-                              new DialogInterface.OnClickListener() {
-                                  @Override public void onClick(DialogInterface dialog, int which) {
-                                      copyErrorToClipboard();
-                                      Toast.makeText(DefaultErrorActivity.this, R.string.customactivityoncrash_error_activity_error_details_copied, Toast.LENGTH_SHORT).show();
-                                  }
-                              })
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            copyErrorToClipboard();
+                                            Toast.makeText(DefaultErrorActivity.this, R.string.customactivityoncrash_error_activity_error_details_copied, Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
                             .show();
                     TextView textView = (TextView) dialog.findViewById(android.R.id.message);
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.customactivityoncrash_error_activity_error_details_text_size));
@@ -96,20 +97,29 @@ public final class DefaultErrorActivity extends Activity {
         } else {
             moreInfoButton.setVisibility(View.GONE);
         }
+
+        int defaultErrorActivityDrawableId = CustomActivityOnCrash.getDefaultErrorActivityDrawableIdFromIntent(getIntent());
+        ImageView errorImageView = ((ImageView) findViewById(R.id.customactivityoncrash_error_activity_image));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            errorImageView.setImageDrawable(getResources().getDrawable(defaultErrorActivityDrawableId, getTheme()));
+        } else {
+            //noinspection deprecation
+            errorImageView.setImageDrawable(getResources().getDrawable(defaultErrorActivityDrawableId));
+        }
     }
 
-    @SuppressLint("NewApi")
     private void copyErrorToClipboard() {
         String errorInformation =
-          CustomActivityOnCrash.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
+                CustomActivityOnCrash.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText(getString(R.string.customactivityoncrash_error_activity_error_details_clipboard_label), errorInformation);
+            clipboard.setPrimaryClip(clip);
+        } else {
+            //noinspection deprecation
             android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             clipboard.setText(errorInformation);
-        } else {
-            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Error information", errorInformation);
-            clipboard.setPrimaryClip(clip);
         }
     }
 }
