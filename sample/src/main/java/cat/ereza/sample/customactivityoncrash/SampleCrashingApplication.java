@@ -17,6 +17,7 @@
 package cat.ereza.sample.customactivityoncrash;
 
 import android.app.Application;
+import android.util.Log;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
@@ -60,6 +61,19 @@ public class SampleCrashingApplication extends Application {
 
         //This enables CustomActivityOnCrash
         CustomActivityOnCrash.install(this);
+
+        // Set tracker
+        CustomActivityOnCrash.setTracker(new CustomActivityOnCrash.Tracker() {
+            @Override
+            public void onErrorActivityLaunched() {
+                Log.i("SCA", "onErrorActivityLaunched()");
+            }
+
+            @Override
+            public void onRestartActvity() {
+                Log.i("SCA", "onRestartActvity()");
+            }
+        });
 
         //In a normal app, you would now initialize your error handler as normal.
         //i.e., ACRA.init(this);

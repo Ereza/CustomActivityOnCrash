@@ -73,6 +73,8 @@ public final class CustomActivityOnCrash {
     private static Class<? extends Activity> errorActivityClass = null;
     private static Class<? extends Activity> restartActivityClass = null;
 
+    // Tracker
+    private static Tracker tracker = new Tracker.NullTracker();
     /**
      * Installs CustomActivityOnCrash on the application using the default error activity.
      *
@@ -143,6 +145,7 @@ public final class CustomActivityOnCrash {
                                     intent.putExtra(EXTRA_IMAGE_DRAWABLE_ID, defaultErrorActivityDrawableId);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     application.startActivity(intent);
+                                    getTracker().onErrorActivityLaunched();
                                 }
                             }
                             final Activity lastActivity = lastActivityCreated.get();
@@ -304,6 +307,7 @@ public final class CustomActivityOnCrash {
     public static void restartApplicationWithIntent(Activity activity, Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         activity.finish();
+        getTracker().onRestartActvity();
         activity.startActivity(intent);
         killCurrentProcess();
     }
@@ -435,7 +439,20 @@ public final class CustomActivityOnCrash {
         CustomActivityOnCrash.restartActivityClass = restartActivityClass;
     }
 
+    /**
+     * Sets a new Tracker to setup events listener
+     * @param tracker A new tracker
+     */
+    public static void setTracker(Tracker tracker) {
+        CustomActivityOnCrash.tracker = tracker;
+    }
 
+    private static Tracker getTracker() {
+        if (tracker == null) {
+            tracker = new Tracker.NullTracker();
+        }
+        return tracker;
+    }
     /// INTERNAL METHODS NOT TO BE USED BY THIRD PARTIES
 
     /**
@@ -656,5 +673,23 @@ public final class CustomActivityOnCrash {
     private static void killCurrentProcess() {
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(10);
+    }
+
+    public interface Tracker {
+        void onErrorActivityLaunched();
+        void onRestartActvity();
+
+        class NullTracker implements Tracker{
+
+            @Override
+            public void onErrorActivityLaunched() {
+
+            }
+
+            @Override
+            public void onRestartActvity() {
+
+            }
+        }
     }
 }
