@@ -23,6 +23,8 @@ import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 public class SampleCrashingApplication extends Application {
 
+    private static final String TAG = "SampleCrashingApp";
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -59,24 +61,32 @@ public class SampleCrashingApplication extends Application {
         //Uncomment to use the custom error activity
 //        CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
 
+        //This sets a EventListener to be notified of events regarding the error activity,
+        //so you can, for example, report them to Google Analytics.
+//        CustomActivityOnCrash.setEventListener(new CustomEventListener());
+
         //This enables CustomActivityOnCrash
         CustomActivityOnCrash.install(this);
 
-        // Set tracker
-        CustomActivityOnCrash.setTracker(new CustomActivityOnCrash.Tracker() {
-            @Override
-            public void onErrorActivityLaunched() {
-                Log.i("SCA", "onErrorActivityLaunched()");
-            }
-
-            @Override
-            public void onRestartActvity() {
-                Log.i("SCA", "onRestartActvity()");
-            }
-        });
-
         //In a normal app, you would now initialize your error handler as normal.
         //i.e., ACRA.init(this);
-        //or Crashlytics.start(this);
+        //or Fabric.with(this, new Crashlytics());
+    }
+
+    static class CustomEventListener implements CustomActivityOnCrash.EventListener {
+        @Override
+        public void onLaunchErrorActivity() {
+            Log.i(TAG, "onLaunchErrorActivity()");
+        }
+
+        @Override
+        public void onRestartAppFromErrorActivity() {
+            Log.i(TAG, "onRestartAppFromErrorActivity()");
+        }
+
+        @Override
+        public void onCloseAppFromErrorActivity() {
+            Log.i(TAG, "onCloseAppFromErrorActivity()");
+        }
     }
 }

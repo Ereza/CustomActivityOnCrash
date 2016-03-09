@@ -15,6 +15,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="cat.ereza.sample.customactivityoncrash">
 
     <application
@@ -22,7 +23,8 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/SampleAppTheme">
+        android:theme="@style/SampleAppTheme"
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
             android:name="cat.ereza.sample.customactivityoncrash.activity.MainActivity"
             android:label="@string/app_name">

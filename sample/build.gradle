@@ -21,19 +21,19 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "cat.ereza.sample.customactivityoncrash"
+        applicationId "cat.ereza.sample2.customactivityoncrash"
         minSdkVersion 4
         targetSdkVersion 23
         versionCode 7
-        versionName "1.4.1-SNAPSHOT"
+        versionName "1.5.0"
     }
     buildTypes {
         debug {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles 'proguard-rules.pro'
         }
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles 'proguard-rules.pro'
         }
     }

@@ -11,7 +11,7 @@ This library allows launching a custom activity when the app crashes, instead of
 Add the following dependency to your build.gradle:
 ```gradle
 dependencies {
-    compile 'cat.ereza:customactivityoncrash:1.4.0'
+    compile 'cat.ereza:customactivityoncrash:1.5.0'
 }
 ```
 
@@ -30,7 +30,7 @@ On your application class, use this snippet:
 
         //Now initialize your error handlers as normal
         //i.e., ACRA.init(this);
-        //or Crashlytics.start(this);
+        //or Fabric.with(this, new Crashlytics())
     }
 ```
 
@@ -83,6 +83,14 @@ if no restart activity is specified or found!
 The default is `true`.
 
 ```java
+CustomActivityOnCrash.setEventListener(EventListener);
+```
+This method allows you to specify an event listener in order to get notified when the library shows the error activity, restarts or closes the app.
+The EventListener you provide can not be an anonymous or non-static inner class, because it needs to be serialized by the library. The library will throw an exception if you try to set an invalid class.
+If you set it to null, no event listener will be invoked.
+The default is null.
+
+```java
 CustomActivityOnCrash.setRestartActivityClass(Class<? extends Activity>);
 ```
 This method sets the activity that must be launched by the error activity when the user presses the button to restart the app.
@@ -104,7 +112,7 @@ CustomActivityOnCrash.setErrorActivityClass(Class<? extends Activity>);
 ```
 This method allows you to set a custom error activity to be launched, instead of the default one.
 Use it if you need further customization that is not just strings, colors or themes (see below).
-If you don't set it (or set it to null), the library will use first activity on your manifest that has an intent-filter with action
+If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
 `cat.ereza.customactivityoncrash.ERROR`, and if there is none, a default error activity from the library.
 If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`.
 
@@ -175,13 +183,18 @@ CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
 Returns the class of the activity you have to launch to restart the app, or `null` if not set.
 
 ```java
-CustomActivityOnCrash.restartApplicationWithIntent(activity, intent);
+CustomActivityOnCrash.getEventListenerFromIntent(getIntent());
+```
+Returns the event listener that you must pass to `restartApplicationWithIntent(activity, intent, eventListener)` or `closeApplication(activity, eventListener)`.
+
+```java
+CustomActivityOnCrash.restartApplicationWithIntent(activity, intent, eventListener);
 ```
 Kills the current process and restarts the app again with an `startActivity()` to the passed intent.
 You **MUST** call this to restart the app, or you will end up having several `Application` class instances and experience multiprocess issues in API<17.
 
 ```java
-CustomActivityOnCrash.closeApplication(activity);
+CustomActivityOnCrash.closeApplication(activity, eventListener);
 ```
 Closes the app and kills the current process.
 You **MUST** call this to close the app, or you will end up having several Application class instances and experience multiprocess issues in API<17.
@@ -211,7 +224,7 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
 * If you use a custom `UncaughtExceptionHandler`, it will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be done **after** CustomActivityOnCrash initialization).
 * On some rare cases on devices with API<14, the app may enter a restart loop when a crash occurs. Therefore, using it on API<14 is not recommended.
 * If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases).
-* The library has not been tested with multidex enabled. It uses Class.forName() to load classes, so maybe that could cause some problem. If you test it with multidex enabled, please provide feedback!
+* The library has not been tested with multidex enabled. It uses Class.forName() to load classes, so maybe that could cause some problem in API<21. If you test it with such configuration, please provide feedback!
 * The library has not been tested with multiprocess apps. If you test it with such configuration, please provide feedback too!
 
 ## Disclaimers
@@ -227,5 +240,5 @@ Any contribution in order to make this library better will be welcome!
 
 The library is licensed under the [Apache License 2.0](https://github.com/Ereza/CustomActivityOnCrash/blob/master/LICENSE).
 
-The bug image used in the default error activity is licensed under CC-BY by Riff: https://www.sketchport.com/drawing/6119265933459456/lady-bug
+The bug image used in the default error activity is licensed under CC-BY by Riffschievous: https://www.sketchport.com/drawing/6119265933459456/lady-bug
 If you use the image in your app, don't forget to mention that!

@@ -49,6 +49,7 @@ public final class DefaultErrorActivity extends Activity {
         Button restartButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_restart_button);
 
         final Class<? extends Activity> restartActivityClass = CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
+        final CustomActivityOnCrash.EventListener eventListener = CustomActivityOnCrash.getEventListenerFromIntent(getIntent());
 
         if (restartActivityClass != null) {
             restartButton.setText(R.string.customactivityoncrash_error_activity_restart_app);
@@ -56,14 +57,14 @@ public final class DefaultErrorActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
-                    CustomActivityOnCrash.restartApplicationWithIntent(DefaultErrorActivity.this, intent);
+                    CustomActivityOnCrash.restartApplicationWithIntent(DefaultErrorActivity.this, intent, eventListener);
                 }
             });
         } else {
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    CustomActivityOnCrash.closeApplication(DefaultErrorActivity.this);
+                    CustomActivityOnCrash.closeApplication(DefaultErrorActivity.this, eventListener);
                 }
             });
         }
