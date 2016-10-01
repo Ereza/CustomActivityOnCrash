@@ -29,6 +29,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.apache.commons.collections4.queue.CircularFifoQueue;
+
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -53,6 +55,7 @@ public final class CustomActivityOnCrash {
     private static final String EXTRA_RESTART_ACTIVITY_CLASS = "cat.ereza.customactivityoncrash.EXTRA_RESTART_ACTIVITY_CLASS";
     private static final String EXTRA_SHOW_ERROR_DETAILS = "cat.ereza.customactivityoncrash.EXTRA_SHOW_ERROR_DETAILS";
     private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
+    private static final String EXTRA_USER_ACTION_TRACE = "cat.ereza.customactivityoncrash.EXTRA_USER_ACTION_TRACE";
     private static final String EXTRA_IMAGE_DRAWABLE_ID = "cat.ereza.customactivityoncrash.EXTRA_IMAGE_DRAWABLE_ID";
     private static final String EXTRA_EVENT_LISTENER = "cat.ereza.customactivityoncrash.EXTRA_EVENT_LISTENER";
 
@@ -81,6 +84,8 @@ public final class CustomActivityOnCrash {
     private static Class<? extends Activity> errorActivityClass = null;
     private static Class<? extends Activity> restartActivityClass = null;
     private static EventListener eventListener = null;
+
+    private static CircularFifoQueue<String> userLogs = new CircularFifoQueue<>(50);
 
     /**
      * Installs CustomActivityOnCrash on the application using the default error activity.
@@ -159,7 +164,14 @@ public final class CustomActivityOnCrash {
                                         restartActivityClass = null;
                                     }
 
+                                    String userLogString = "";
+                                    while (!userLogs.isEmpty())
+                                    {
+                                        userLogString += userLogs.poll();
+                                    }
+
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
+                                    intent.putExtra(EXTRA_USER_ACTION_TRACE, userLogString);
                                     intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
                                     intent.putExtra(EXTRA_SHOW_ERROR_DETAILS, showErrorDetails);
                                     intent.putExtra(EXTRA_EVENT_LISTENER, eventListener);
@@ -185,6 +197,7 @@ public final class CustomActivityOnCrash {
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                         application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                             int currentlyStartedActivities = 0;
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
                             @Override
                             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -195,6 +208,7 @@ public final class CustomActivityOnCrash {
                                     // explicitly kill it off.
                                     lastActivityCreated = new WeakReference<>(activity);
                                 }
+                                userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " created\n");
                             }
 
                             @Override
@@ -205,13 +219,15 @@ public final class CustomActivityOnCrash {
                             }
 
                             @Override
-                            public void onActivityResumed(Activity activity) {
-                                //Do nothing
+                            public void onActivityResumed(Activity activity)
+                            {
+                                userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " resumed\n");
                             }
 
                             @Override
-                            public void onActivityPaused(Activity activity) {
-                                //Do nothing
+                            public void onActivityPaused(Activity activity)
+                            {
+                                userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " paused\n");
                             }
 
                             @Override
@@ -228,7 +244,7 @@ public final class CustomActivityOnCrash {
 
                             @Override
                             public void onActivityDestroyed(Activity activity) {
-                                //Do nothing
+                                userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " destroyed\n");
                             }
                         });
                     }
@@ -272,6 +288,17 @@ public final class CustomActivityOnCrash {
     }
 
     /**
+     * Given an Intent, returns the user actions trace extra from it.
+     *
+     * @param intent The Intent. Must not be null.
+     * @return The stacktrace, or null if not provided.
+     */
+    public static String getUserTraceFromIntent(Intent intent)
+    {
+        return intent.getStringExtra(CustomActivityOnCrash.EXTRA_USER_ACTION_TRACE);
+    }
+
+    /**
      * Given an Intent, returns several error details including the stack trace extra from the intent.
      *
      * @param context A valid context. Must not be null.
@@ -301,6 +328,8 @@ public final class CustomActivityOnCrash {
         errorDetails += "Device: " + getDeviceModelName() + " \n \n";
         errorDetails += "Stack trace:  \n";
         errorDetails += getStackTraceFromIntent(intent);
+        errorDetails += "\n\nUser actions: \n";
+        errorDetails += getUserTraceFromIntent(intent);
         return errorDetails;
     }
 
