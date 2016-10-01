@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 apply plugin: 'com.android.library'
-
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
@@ -28,5 +26,7 @@ android {
         versionName "1.5.0"
     }
 }
-
 apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+dependencies {
+    compile 'org.apache.commons:commons-collections4:4.1'
+}
