@@ -580,12 +580,26 @@ public final class CustomActivityOnCrash {
     private static String getBuildDateAsString(Context context, DateFormat dateFormat) {
         String buildDate;
         try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
-            ZipFile zf = new ZipFile(ai.sourceDir);
-            ZipEntry ze = zf.getEntry("classes.dex");
-            long time = ze.getTime();
+            long time;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                time = packageInfo.lastUpdateTime;
+            } else {
+                ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
+                ZipFile zf = new ZipFile(ai.sourceDir);
+                ZipEntry ze = zf.getEntry("classes.dex");
+                time = ze.getTime();
+                zf.close();
+
+                if (time == 312764400000L) {
+                    // build date is Fri, Nov 30 1979 00:00:00
+                    // gradle most likely didn't set the proper timestamp for files in the apk.
+                    // see https://code.google.com/p/android/issues/detail?id=220039
+                    return "Unknown";
+                }
+            }
+
             buildDate = dateFormat.format(new Date(time));
-            zf.close();
         } catch (Exception e) {
             buildDate = "Unknown";
         }
