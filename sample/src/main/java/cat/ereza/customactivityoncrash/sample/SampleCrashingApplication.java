@@ -19,7 +19,7 @@ package cat.ereza.customactivityoncrash.sample;
 import android.app.Application;
 import android.util.Log;
 
-import cat.ereza.customactivityoncrash.CaocConfig;
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 public class SampleCrashingApplication extends Application {
@@ -43,7 +43,7 @@ public class SampleCrashingApplication extends Application {
 //                .showRestartButton(false)
                 //This makes the library track the activites visited by the user and their lifecycle calls.
                 //Use it if you want that info in the error details screen shown on the error activity.
-//                .trackActivities(true)
+                .trackActivities(true)
                 //This shows a different image on the error activity, instead of the default upside-down bug.
                 //You may use a drawable or a mipmap.
 //                .errorDrawable(R.mipmap.ic_launcher)

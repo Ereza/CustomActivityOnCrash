@@ -30,7 +30,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cat.ereza.customactivityoncrash.CaocConfig;
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.R;
 

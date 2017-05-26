@@ -22,7 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import cat.ereza.customactivityoncrash.CaocConfig;
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.sample.R;
 

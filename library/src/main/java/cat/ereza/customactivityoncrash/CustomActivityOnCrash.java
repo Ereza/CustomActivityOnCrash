@@ -30,21 +30,22 @@ import android.os.Bundle;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
-import org.apache.commons.collections4.queue.CircularFifoQueue;
-
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.Date;
+import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import cat.ereza.customactivityoncrash.activity.DefaultErrorActivity;
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 
 public final class CustomActivityOnCrash {
 
@@ -76,7 +77,7 @@ public final class CustomActivityOnCrash {
     //Configuration object
     private static CaocConfig config = new CaocConfig();
 
-    private static CircularFifoQueue<String> activityLog = new CircularFifoQueue<>(50);
+    private static Deque<String> activityLog = new ArrayDeque<>(50);
 
     /**
      * Installs CustomActivityOnCrash on the application using the default error activity.
@@ -367,7 +368,8 @@ public final class CustomActivityOnCrash {
      *
      * @return the current configuration
      */
-    static CaocConfig getConfig() {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static CaocConfig getConfig() {
         return config;
     }
 
@@ -377,7 +379,8 @@ public final class CustomActivityOnCrash {
      *
      * @param config the configuration to use
      */
-    static void setConfig(CaocConfig config) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static void setConfig(CaocConfig config) {
         CustomActivityOnCrash.config = config;
     }
 

@@ -17,5 +17,4 @@ apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn
 
 dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'org.apache.commons:commons-collections4:4.1'
 }

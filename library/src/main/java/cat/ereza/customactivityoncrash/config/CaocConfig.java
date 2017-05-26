@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package cat.ereza.customactivityoncrash;
+package cat.ereza.customactivityoncrash.config;
 
 import android.app.Activity;
 import android.support.annotation.DrawableRes;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
+
+import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 public class CaocConfig implements Serializable {
     private boolean launchWhenInBackground = false;
