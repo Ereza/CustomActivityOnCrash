@@ -53,7 +53,7 @@ public final class CustomActivityOnCrash {
     //Extras passed to the error activity
     private static final String EXTRA_CONFIG = "cat.ereza.customactivityoncrash.EXTRA_CONFIG";
     private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
-    private static final String EXTRA_USER_ACTION_TRACE = "cat.ereza.customactivityoncrash.EXTRA_USER_ACTION_TRACE";
+    private static final String EXTRA_ACTIVITY_LOG = "cat.ereza.customactivityoncrash.EXTRA_ACTIVITY_LOG";
 
     //General constants
     private static final String INTENT_ACTION_ERROR_ACTIVITY = "cat.ereza.customactivityoncrash.ERROR";
@@ -76,7 +76,7 @@ public final class CustomActivityOnCrash {
     //Configuration object
     private static CaocConfig config = new CaocConfig();
 
-    private static CircularFifoQueue<String> userLogs = new CircularFifoQueue<>(50);
+    private static CircularFifoQueue<String> activityLog = new CircularFifoQueue<>(50);
 
     /**
      * Installs CustomActivityOnCrash on the application using the default error activity.
@@ -84,7 +84,7 @@ public final class CustomActivityOnCrash {
      * @param context Context to use for obtaining the ApplicationContext. Must not be null.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void install(Context context) {
+    public static void install(final Context context) {
         try {
             if (context == null) {
                 Log.e(TAG, "Install failed: context is null!");
@@ -144,6 +144,15 @@ public final class CustomActivityOnCrash {
                                         String disclaimer = " [stack trace too large]";
                                         stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
                                     }
+                                    intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
+
+                                    if (config.isTrackActivities()) {
+                                        String activityLogString = "";
+                                        while (!activityLog.isEmpty()) {
+                                            activityLogString += activityLog.poll();
+                                        }
+                                        intent.putExtra(EXTRA_ACTIVITY_LOG, activityLogString);
+                                    }
 
                                     if (config.isShowRestartButton() && config.getRestartActivityClass() == null) {
                                         //We can set the restartActivityClass because the app will terminate right now,
@@ -151,13 +160,6 @@ public final class CustomActivityOnCrash {
                                         config.setRestartActivityClass(guessRestartActivityClass(application));
                                     }
 
-                                    String userLogString = "";
-                                    while (!userLogs.isEmpty()) {
-                                        userLogString += userLogs.poll();
-                                    }
-
-                                    intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
-                                    intent.putExtra(EXTRA_USER_ACTION_TRACE, userLogString);
                                     intent.putExtra(EXTRA_CONFIG, config);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     if (config.getEventListener() != null) {
@@ -189,7 +191,9 @@ public final class CustomActivityOnCrash {
                                 // explicitly kill it off.
                                 lastActivityCreated = new WeakReference<>(activity);
                             }
-                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " created\n");
+                            if (config.isTrackActivities()) {
+                                activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " created\n");
+                            }
                         }
 
                         @Override
@@ -201,12 +205,16 @@ public final class CustomActivityOnCrash {
 
                         @Override
                         public void onActivityResumed(Activity activity) {
-                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " resumed\n");
+                            if (config.isTrackActivities()) {
+                                activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " resumed\n");
+                            }
                         }
 
                         @Override
                         public void onActivityPaused(Activity activity) {
-                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " paused\n");
+                            if (config.isTrackActivities()) {
+                                activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " paused\n");
+                            }
                         }
 
                         @Override
@@ -223,7 +231,9 @@ public final class CustomActivityOnCrash {
 
                         @Override
                         public void onActivityDestroyed(Activity activity) {
-                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " destroyed\n");
+                            if (config.isTrackActivities()) {
+                                activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " destroyed\n");
+                            }
                         }
                     });
                 }
@@ -256,13 +266,13 @@ public final class CustomActivityOnCrash {
     }
 
     /**
-     * Given an Intent, returns the user actions trace extra from it.
+     * Given an Intent, returns the activity log extra from it.
      *
      * @param intent The Intent. Must not be null.
-     * @return The user actions, or null if not provided.
+     * @return The activity log, or null if not provided.
      */
-    public static String getUserTraceFromIntent(Intent intent) {
-        return intent.getStringExtra(CustomActivityOnCrash.EXTRA_USER_ACTION_TRACE);
+    public static String getActivityLogFromIntent(Intent intent) {
+        return intent.getStringExtra(CustomActivityOnCrash.EXTRA_ACTIVITY_LOG);
     }
 
     /**
@@ -297,8 +307,13 @@ public final class CustomActivityOnCrash {
         errorDetails += "Device: " + getDeviceModelName() + " \n \n";
         errorDetails += "Stack trace:  \n";
         errorDetails += getStackTraceFromIntent(intent);
-        errorDetails += "\n\nUser actions: \n";
-        errorDetails += getUserTraceFromIntent(intent);
+
+        String activityLog = getActivityLogFromIntent(intent);
+
+        if (activityLog != null) {
+            errorDetails += "\nUser actions: \n";
+            errorDetails += getActivityLogFromIntent(intent);
+        }
         return errorDetails;
     }
 

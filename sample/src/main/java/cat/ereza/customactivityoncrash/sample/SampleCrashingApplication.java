@@ -41,6 +41,9 @@ public class SampleCrashingApplication extends Application {
                 //This avoids the app from using the "Restart app" button and displaying a "Close app" button directly.
                 //Even with restart app enabled, the Close app can still be displayed if your app has no launch activity.
 //                .showRestartButton(false)
+                //This makes the library track the activites visited by the user and their lifecycle calls.
+                //Use it if you want that info in the error details screen shown on the error activity.
+//                .trackActivities(true)
                 //This shows a different image on the error activity, instead of the default upside-down bug.
                 //You may use a drawable or a mipmap.
 //                .errorDrawable(R.mipmap.ic_launcher)

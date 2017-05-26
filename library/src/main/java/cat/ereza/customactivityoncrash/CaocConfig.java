@@ -26,6 +26,7 @@ public class CaocConfig implements Serializable {
     private boolean launchWhenInBackground = false;
     private boolean showErrorDetails = true;
     private boolean showRestartButton = true;
+    private boolean trackActivities = false;
     private Integer errorDrawable = null;
     private Class<? extends Activity> errorActivityClass = null;
     private Class<? extends Activity> restartActivityClass = null;
@@ -53,6 +54,14 @@ public class CaocConfig implements Serializable {
 
     public void setShowRestartButton(boolean showRestartButton) {
         this.showRestartButton = showRestartButton;
+    }
+
+    public boolean isTrackActivities() {
+        return trackActivities;
+    }
+
+    public void setTrackActivities(boolean trackActivities) {
+        this.trackActivities = trackActivities;
     }
 
     public Integer getErrorDrawable() {
@@ -100,6 +109,7 @@ public class CaocConfig implements Serializable {
                 config.launchWhenInBackground = currentConfig.launchWhenInBackground;
                 config.showErrorDetails = currentConfig.showErrorDetails;
                 config.showRestartButton = currentConfig.showRestartButton;
+                config.trackActivities = currentConfig.trackActivities;
                 config.errorDrawable = currentConfig.errorDrawable;
                 config.errorActivityClass = currentConfig.errorActivityClass;
                 config.restartActivityClass = currentConfig.restartActivityClass;
@@ -144,6 +154,16 @@ public class CaocConfig implements Serializable {
          */
         public Builder showRestartButton(boolean showRestartButton) {
             config.showRestartButton = showRestartButton;
+            return this;
+        }
+
+        /**
+         * Defines if the activities visited by the user should be tracked
+         * so they are reported when an error occurs.
+         * The default is false.
+         */
+        public Builder trackActivities(boolean trackActivities) {
+            config.trackActivities = trackActivities;
             return this;
         }
 

@@ -42,6 +42,7 @@ public class CustomErrorActivity extends AppCompatActivity {
 
         //These four methods are available for you to use:
         //CustomActivityOnCrash.getStackTraceFromIntent(getIntent()): gets the stack trace as a string
+        //CustomActivityOnCrash.getActivityLogFromIntent(getIntent()): gets the activity log as a string
         //CustomActivityOnCrash.getAllErrorDetailsFromIntent(context, getIntent()): returns all error details including stacktrace as a string
         //CustomActivityOnCrash.getConfigFromIntent(getIntent()): returns the config of the library when the error happened
 
