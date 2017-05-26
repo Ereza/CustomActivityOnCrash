@@ -152,8 +152,7 @@ public final class CustomActivityOnCrash {
                                     }
 
                                     String userLogString = "";
-                                    while (!userLogs.isEmpty())
-                                    {
+                                    while (!userLogs.isEmpty()) {
                                         userLogString += userLogs.poll();
                                     }
 
@@ -190,7 +189,7 @@ public final class CustomActivityOnCrash {
                                 // explicitly kill it off.
                                 lastActivityCreated = new WeakReference<>(activity);
                             }
-                            userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " created\n");
+                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " created\n");
                         }
 
                         @Override
@@ -202,12 +201,12 @@ public final class CustomActivityOnCrash {
 
                         @Override
                         public void onActivityResumed(Activity activity) {
-                            userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " resumed\n");
+                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " resumed\n");
                         }
 
                         @Override
                         public void onActivityPaused(Activity activity) {
-                            userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " paused\n");
+                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " paused\n");
                         }
 
                         @Override
@@ -224,7 +223,7 @@ public final class CustomActivityOnCrash {
 
                         @Override
                         public void onActivityDestroyed(Activity activity) {
-                            userLogs.add(dateFormat.format(new Date())+ " " + activity.getLocalClassName() + " destroyed\n");
+                            userLogs.add(dateFormat.format(new Date()) + " " + activity.getLocalClassName() + " destroyed\n");
                         }
                     });
                 }
@@ -262,8 +261,7 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The user actions, or null if not provided.
      */
-    public static String getUserTraceFromIntent(Intent intent)
-    {
+    public static String getUserTraceFromIntent(Intent intent) {
         return intent.getStringExtra(CustomActivityOnCrash.EXTRA_USER_ACTION_TRACE);
     }
 
