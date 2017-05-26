@@ -16,10 +16,12 @@
 
 package cat.ereza.customactivityoncrash.activity;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -30,15 +32,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cat.ereza.customactivityoncrash.config.CaocConfig;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.R;
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 
 public final class DefaultErrorActivity extends AppCompatActivity {
 
+    @SuppressLint("PrivateResource")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //This is needed to avoid a crash if the developer has not specified
+        //an app-level theme that extends Theme.AppCompat
+        TypedArray a = obtainStyledAttributes(R.styleable.AppCompatTheme);
+        if (!a.hasValue(R.styleable.AppCompatTheme_windowActionBar)) {
+            setTheme(R.style.Theme_AppCompat_Light_DarkActionBar);
+        }
+        a.recycle();
 
         setContentView(R.layout.customactivityoncrash_default_error_activity);
 
