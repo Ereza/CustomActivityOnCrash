@@ -95,10 +95,10 @@ public final class CustomActivityOnCrash {
                 final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
 
                 if (oldHandler != null && oldHandler.getClass().getName().startsWith(CAOC_HANDLER_PACKAGE_NAME)) {
-                    Log.e(TAG, "You have already installed CustomActivityOnCrash, doing nothing!");
+                    Log.e(TAG, "CustomActivityOnCrash was already installed, doing nothing!");
                 } else {
                     if (oldHandler != null && !oldHandler.getClass().getName().startsWith(DEFAULT_HANDLER_PACKAGE_NAME)) {
-                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use ACRA, Crashlytics or similar libraries, you must initialize them AFTER CustomActivityOnCrash! Installing anyway, but your original handler will not be called.");
+                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use a custom UncaughtExceptionHandler, you must initialize it AFTER CustomActivityOnCrash! Installing anyway, but your original handler will not be called.");
                     }
 
                     application = (Application) context.getApplicationContext();
@@ -130,7 +130,7 @@ public final class CustomActivityOnCrash {
                                         oldHandler.uncaughtException(thread, throwable);
                                         return;
                                     }
-                                } else if (config.isLaunchWhenInBackground() || !isInBackground) {
+                                } else if (config.getBackgroundMode()== CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM || !isInBackground) {
 
                                     final Intent intent = new Intent(application, errorActivityClass);
                                     StringWriter sw = new StringWriter();
@@ -169,6 +169,14 @@ public final class CustomActivityOnCrash {
                                     }
                                     application.startActivity(intent);
                                 }
+                                else if (config.getBackgroundMode()== CaocConfig.BACKGROUND_MODE_CRASH){
+                                    if (oldHandler!=null){
+                                        oldHandler.uncaughtException(thread, throwable);
+                                        return;
+                                    }
+                                    //If it is null (should not be), we let it continue and kill the process or it will be stuck
+                                }
+                                //Else (BACKGROUND_MODE_SILENT): do nothing and let the following code kill the process
                             }
                             final Activity lastActivity = lastActivityCreated.get();
                             if (lastActivity != null) {

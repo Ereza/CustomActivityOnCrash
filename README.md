@@ -6,98 +6,102 @@ This library allows launching a custom activity when the app crashes, instead of
 
 ## How to use
 
-### 1. Add a dependency
+### One-step install
 
 Add the following dependency to your build.gradle:
 ```gradle
 dependencies {
-    compile 'cat.ereza:customactivityoncrash:1.5.0'
+    compile 'cat.ereza:customactivityoncrash:2.0.0'
 }
 ```
 
-You can also do it manually, by downloading the source code, importing the `library` folder as an Android Library Module, and adding a dependency on your project to that module.
+...and you are done!
 
-### 2. Set up your application
+Of course, you can combine this library with any other crash handler such as Crashlytics, ACRA or Firebase, just set them up as you would normally.
 
-On your application class, use this snippet:
+### Try it
+
+Force an app crash by throwing an uncaught exception, using something like this in your code:
+```java
+throw new RuntimeException("Boom!");
+```
+
+### Advanced setup
+
+You can customize the behavior of this library in several ways by setting its configuration at any moment.
+However, it's recommended to do it on your `Application` class so it becomes available as soon as possible.
+
+Add a snippet like this to your `Application` class:
 ```java
     @Override
     public void onCreate() {
         super.onCreate();
 
-        //Install CustomActivityOnCrash
-        CustomActivityOnCrash.install(this);
-
-        //Now initialize your error handlers as normal
-        //i.e., ACRA.init(this);
-        //or Fabric.with(this, new Crashlytics())
+        CaocConfig.Builder.create()
+            .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT) //default: CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM
+            .showErrorDetails(false) //default: true
+            .showRestartButton(false) //default: true
+            .trackActivities(true) //default: false
+            .errorDrawable(R.drawable.ic_custom_drawable) //default: bug image
+            .restartActivity(YourCustomActivity.class) //default: null (your app's launch activity)
+            .errorActivity(YourCustomErrorActivity.class) //default: null (default error activity)
+            .eventListener(new YourCustomEventListener()) //default: null
+            .apply();
     }
 ```
 
-**WARNING!** If you already have ACRA, Crashlytics or any similar library in your app, it will still work as normal, but the CustomActivityOnCrash initialization **MUST** be done first, or the original reporting tool will stop working.
-
-### 3. Test it
-
-Make the app crash by using something like this in your code:
-```java
-throw new RuntimeException("Boom!");
-```
-
-The error activity should show up, instead of the system dialog.
-
-### Optional: Customization
+### Customization options
 
 **Custom behavior**
 
-You can call the following methods at any time to customize how the library works, although usually you will call them before calling `install(context)`:
+Here is a more detailed explanation of each option:
 
 ```java
-CustomActivityOnCrash.setLaunchErrorActivityWhenInBackground(boolean);
+launchWhenInBackground(int);
 ```
 This method defines if the error activity should be launched when the app crashes while on background.
-By default, this is true. On API<14, it's always true since there is no way to detect if the app is in foreground.
-If you set it to `false`, a crash while in background won't launch the error activity nor the system dialog, so it will be a silent crash.
-The default is `true`.
+There are three modes:
+- BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM: launch the error activity even if the app is in background.
+- BackgroundMode.BACKGROUND_MODE_CRASH: launch the default system error when the app is in background.
+- BackgroundMode.BACKGROUND_MODE_SILENT: crash silently when the app is in background.
 
 ```java
-CustomActivityOnCrash.setShowErrorDetails(boolean);
+showErrorDetails(boolean);
 ```
 This method defines if the error activity must show a button with error details.
 If you set it to `false`, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
 The default is `true`.
 
 ```java
-CustomActivityOnCrash.setDefaultErrorActivityDrawable(int);
+trackActivities(boolean);
 ```
-This method allows changing the default upside-down bug image with an image of your choice.
-You may pass a resource id for a drawable or a mipmap.
-The default is `R.drawable.customactivityoncrash_error_image`.
+This method defines if the library must track the activities the user visits and their lifecycle calls.
+This is displayed on the default error activity as part of the error details.
+The default is `false`.
 
 ```java
-CustomActivityOnCrash.setEnableAppRestart(boolean);
+showRestartButton(boolean);
 ```
 This method defines if the error activity must show a "Restart app" button or a "Close app" button.
 If you set it to `false`, the button on the default error activity will close the app instead of restarting.
-Warning! If you set it to `true`, there is the possibility of it still displaying the "Close app" button,
-if no restart activity is specified or found!
+If you set it to `true` and your app has no launch activity, it will still display a "Close app" button!
 The default is `true`.
 
 ```java
-CustomActivityOnCrash.setEventListener(EventListener);
+errorDrawable(Integer);
 ```
-This method allows you to specify an event listener in order to get notified when the library shows the error activity, restarts or closes the app.
-The EventListener you provide can not be an anonymous or non-static inner class, because it needs to be serialized by the library. The library will throw an exception if you try to set an invalid class.
-If you set it to null, no event listener will be invoked.
-The default is null.
+This method allows changing the default upside-down bug image with an image of your choice.
+You can pass a resource id for a drawable or a mipmap.
+The default is `null` (the bug image is used).
 
 ```java
-CustomActivityOnCrash.setRestartActivityClass(Class<? extends Activity>);
+restartActivity(Class<? extends Activity>);
 ```
 This method sets the activity that must be launched by the error activity when the user presses the button to restart the app.
 If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
 `cat.ereza.customactivityoncrash.RESTART`, and if there is none, the default launchable activity on your app.
 If no launchable activity can be found and you didn't specify any, the "restart app" button will become a "close app" button,
-even if `setEnableAppRestart` is set to `true`.
+even if `showRestartButton` is set to `true`.
 
 As noted, you can also use the following intent-filter to specify the restart activity:
 ```xml
@@ -108,13 +112,13 @@ As noted, you can also use the following intent-filter to specify the restart ac
 ```
 
 ```java
-CustomActivityOnCrash.setErrorActivityClass(Class<? extends Activity>);
+errorActivity(Class<? extends Activity>);
 ```
 This method allows you to set a custom error activity to be launched, instead of the default one.
 Use it if you need further customization that is not just strings, colors or themes (see below).
 If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
 `cat.ereza.customactivityoncrash.ERROR`, and if there is none, a default error activity from the library.
-If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`.
+If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`. Not
 
 Example:
 ```xml
@@ -132,25 +136,40 @@ As noted, you can also use the following intent-filter to specify the error acti
 </intent-filter>
 ```
 
+```java
+eventListener(EventListener);
+```
+This method allows you to specify an event listener in order to get notified when the library shows the error activity, restarts or closes the app.
+The EventListener you provide can not be an anonymous or non-static inner class, because it needs to be serialized by the library. The library will throw an exception if you try to set an invalid class.
+If you set it to `null`, no event listener will be invoked.
+The default is `null`.
+
 **Customization of the default activity**
 
 You can override several resources to customize the default activity:
 
 *Theme:*
 
-You can override the default error activity theme by defining a theme in your app with the following id: `CustomActivityOnCrashTheme`
+The activity uses your application theme by default. It must be a child of `Theme.AppCompat` or a default one will be used.
+If you want to specify a specific theme only for the error activity, you can do so by redeclaring it on your manifest like this:
+
+```xml
+<activity
+    android:name="cat.ereza.customactivityoncrash.activity.DefaultErrorActivity"
+    android:theme="@style/YourThemeHere"
+    android:process=":error_activity" />
+```
 
 *Image:*
 
-By default, an image of a bug is displayed. You can change it to any image by creating a `customactivityoncrash_error_image` drawable on all density buckets (mdpi, hdpi, xhdpi, xxhdpi and xxxhdpi).
-You can also use the provided `CustomActivityOnCrash.setDefaultErrorActivityDrawable(int)` method.
+By default, an image of a bug is displayed. You can change it to any image by using the provided `errorDrawable(int)` method.
+You can also do it the old way and create a `customactivityoncrash_error_image` drawable on all density buckets (mdpi, hdpi, xhdpi, xxhdpi and xxxhdpi).
 
 *Strings:*
 
 You can provide new strings and translations for the default error activity strings by overriding the following strings:
 ```xml
     <string name="customactivityoncrash_error_activity_error_occurred_explanation">An unexpected error occurred.\nSorry for the inconvenience.</string>
-    <string name="customactivityoncrash_error_activity_unknown_exception">Unknown exception</string>
     <string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
     <string name="customactivityoncrash_error_activity_close_app">Close app</string>
     <string name="customactivityoncrash_error_activity_error_details">Error details</string>
@@ -178,26 +197,26 @@ CustomActivityOnCrash.getAllErrorDetailsFromIntent(getIntent());
 Returns several error details including the stack trace that caused the error, as a string. This is used in the default error activity error details dialog.
 
 ```java
-CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
+CustomActivityOnCrash.getConfigFromIntent(getIntent());
 ```
-Returns the class of the activity you have to launch to restart the app, or `null` if not set.
+Returns the config of the library when the crash happened. Used to call some methods.
 
 ```java
-CustomActivityOnCrash.getEventListenerFromIntent(getIntent());
+CustomActivityOnCrash.restartApplication(activity, config);
 ```
-Returns the event listener that you must pass to `restartApplicationWithIntent(activity, intent, eventListener)` or `closeApplication(activity, eventListener)`.
+Kills the current process and restarts the app again with a `startActivity()` to the passed intent.
+You **MUST** call this to restart the app, or you will end up having several `Application` class instances and experience multiprocess issues.
 
 ```java
-CustomActivityOnCrash.restartApplicationWithIntent(activity, intent, eventListener);
+CustomActivityOnCrash.restartApplicationWithIntent(activity, intent, config);
 ```
-Kills the current process and restarts the app again with an `startActivity()` to the passed intent.
-You **MUST** call this to restart the app, or you will end up having several `Application` class instances and experience multiprocess issues in API<17.
+The same as `CustomActivityOnCrash.restartApplication`, but allows you to specify a custom intent.
 
 ```java
 CustomActivityOnCrash.closeApplication(activity, eventListener);
 ```
 Closes the app and kills the current process.
-You **MUST** call this to close the app, or you will end up having several Application class instances and experience multiprocess issues in API<17.
+You **MUST** call this to close the app, or you will end up having several Application class instances and experience multiprocess issues.
 
 *The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.*
 
@@ -211,7 +230,7 @@ This library relies on the `Thread.setDefaultUncaughtExceptionHandler` method.
 When an exception is caught by the library's `UncaughtExceptionHandler` it does the following:
 
 1. Captures the stack trace that caused the crash
-2. Launches a new intent to the error activity passing the stacktrace as an extra.
+2. Launches a new intent to the error activity in a new process passing the crash info as an extra.
 3. Kills the current process.
 
 The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog reporting mode with some minor tweaks. Look at the code if you need more detail about how it works.
@@ -221,8 +240,6 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
 * CustomActivityOnCrash will not work in these cases:
     * With any custom `UncaughtExceptionHandler` set after initializing the library, that does not call back to the original handler.
     * With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
-* If you use a custom `UncaughtExceptionHandler`, it will not be called if you initialize it before the library initialization (so, Crashlytics or ACRA initialization must be done **after** CustomActivityOnCrash initialization).
-* On some rare cases on devices with API<14, the app may enter a restart loop when a crash occurs. Therefore, using it on API<14 is not recommended.
 * If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases).
 * The library has not been tested with multidex enabled. It uses Class.forName() to load classes, so maybe that could cause some problem in API<21. If you test it with such configuration, please provide feedback!
 * The library has not been tested with multiprocess apps. If you test it with such configuration, please provide feedback too!
@@ -240,5 +257,5 @@ Any contribution in order to make this library better will be welcome!
 
 The library is licensed under the [Apache License 2.0](https://github.com/Ereza/CustomActivityOnCrash/blob/master/LICENSE).
 
-The bug image used in the default error activity is licensed under CC-BY by Riffschievous: https://www.sketchport.com/drawing/6119265933459456/lady-bug
+The bug image used in the default error activity is licensed under CC-BY by Riff: https://www.sketchport.com/drawing/6119265933459456/lady-bug
 If you use the image in your app, don't forget to mention that!

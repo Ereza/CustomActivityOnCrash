@@ -18,6 +18,7 @@ package cat.ereza.customactivityoncrash.config;
 
 import android.app.Activity;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -27,7 +28,17 @@ import java.lang.reflect.Modifier;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 public class CaocConfig implements Serializable {
-    private boolean launchWhenInBackground = false;
+
+    @IntDef({BACKGROUND_MODE_CRASH, BACKGROUND_MODE_SHOW_CUSTOM, BACKGROUND_MODE_SILENT})
+    private @interface BackgroundMode {
+        //I hate empty blocks
+    }
+
+    public static final int BACKGROUND_MODE_SILENT = 0;
+    public static final int BACKGROUND_MODE_SHOW_CUSTOM = 1;
+    public static final int BACKGROUND_MODE_CRASH = 2;
+
+    private int backgroundMode = BACKGROUND_MODE_SHOW_CUSTOM;
     private boolean showErrorDetails = true;
     private boolean showRestartButton = true;
     private boolean trackActivities = false;
@@ -36,12 +47,13 @@ public class CaocConfig implements Serializable {
     private Class<? extends Activity> restartActivityClass = null;
     private CustomActivityOnCrash.EventListener eventListener = null;
 
-    public boolean isLaunchWhenInBackground() {
-        return launchWhenInBackground;
+    @BackgroundMode
+    public int getBackgroundMode() {
+        return backgroundMode;
     }
 
-    public void setLaunchWhenInBackground(boolean launchWhenInBackground) {
-        this.launchWhenInBackground = launchWhenInBackground;
+    public void setBackgroundMode(@BackgroundMode int backgroundMode) {
+        this.backgroundMode = backgroundMode;
     }
 
     public boolean isShowErrorDetails() {
@@ -114,7 +126,7 @@ public class CaocConfig implements Serializable {
             CaocConfig currentConfig = CustomActivityOnCrash.getConfig();
 
             CaocConfig config = new CaocConfig();
-            config.launchWhenInBackground = currentConfig.launchWhenInBackground;
+            config.backgroundMode = currentConfig.backgroundMode;
             config.showErrorDetails = currentConfig.showErrorDetails;
             config.showRestartButton = currentConfig.showRestartButton;
             config.trackActivities = currentConfig.trackActivities;
@@ -130,14 +142,14 @@ public class CaocConfig implements Serializable {
 
         /**
          * Defines if the error activity must be launched when the app is on background.
-         * Set it to true if you want to launch the error activity when the app is in background,
-         * false if you want it not to launch and crash silently.
-         * This has no effect in API<14 and the error activity is always launched.
-         * The default is true (the app will be brought to front when a crash occurs).
+         * BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM: launch the error activity when the app is in background,
+         * BackgroundMode.BACKGROUND_MODE_CRASH: launch the default system error when the app is in background,
+         * BackgroundMode.BACKGROUND_MODE_SILENT: crash silently when the app is in background,
+         * The default is BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM (the app will be brought to front when a crash occurs).
          */
         @NonNull
-        public Builder launchWhenInBackground(boolean launchWhenInBackground) {
-            config.launchWhenInBackground = launchWhenInBackground;
+        public Builder backgroundMode(@BackgroundMode int backgroundMode) {
+            config.backgroundMode = backgroundMode;
             return this;
         }
 

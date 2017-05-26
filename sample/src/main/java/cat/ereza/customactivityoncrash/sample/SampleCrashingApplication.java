@@ -33,9 +33,11 @@ public class SampleCrashingApplication extends Application {
         //You can uncomment any of the lines below, and test the results.
 
         CaocConfig.Builder.create()
-                //This makes the library launch the error activity when the app crashes while it is in background.
-                //We recommend setting it to false (the default) to not annoy the users by launching the app unexpectedly.
-//                .launchWhenInBackground(true)
+                //Customizes what to do when the app crashes while it is in background. Possible values:
+                //BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM: launch the error activity when the app is in background,
+                //BackgroundMode.BACKGROUND_MODE_CRASH: launch the default system error when the app is in background,
+                //BackgroundMode.BACKGROUND_MODE_SILENT: crash silently when the app is in background,
+//                .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT)
                 //This hides the "error details" button in the error activity, thus hiding the stack trace
 //                .showErrorDetails(false)
                 //This avoids the app from using the "Restart app" button and displaying a "Close app" button directly.
