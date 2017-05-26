@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Eduard Ereza Martínez
+ * Copyright 2014-2017 Eduard Ereza Martínez
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package cat.ereza.sample.customactivityoncrash.activity;
+package cat.ereza.customactivityoncrash.sample.activity;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import cat.ereza.sample.customactivityoncrash.R;
+import cat.ereza.customactivityoncrash.sample.R;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

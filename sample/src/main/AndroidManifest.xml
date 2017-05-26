@@ -1,32 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2015 Eduard Ereza Martínez
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~
-  ~ You may obtain a copy of the License at
-  ~    http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="cat.ereza.sample.customactivityoncrash">
+    package="cat.ereza.customactivityoncrash.sample">
 
     <application
-        android:name="cat.ereza.sample.customactivityoncrash.SampleCrashingApplication"
+        android:name="cat.ereza.customactivityoncrash.sample.SampleCrashingApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/SampleAppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
-            android:name="cat.ereza.sample.customactivityoncrash.activity.MainActivity"
+            android:name="cat.ereza.customactivityoncrash.sample.activity.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,7 +22,7 @@
         </activity>
 
         <activity
-            android:name="cat.ereza.sample.customactivityoncrash.activity.CustomErrorActivity"
+            android:name="cat.ereza.customactivityoncrash.sample.activity.CustomErrorActivity"
             android:label="@string/error_title"
             android:process=":error_activity">
             <!-- You can also use this instead of using CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class); -->

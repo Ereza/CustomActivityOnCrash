@@ -1,19 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2015 Eduard Ereza Martínez
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~
-  ~ You may obtain a copy of the License at
-  ~    http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">CustomActivityOnCrash sample</string>
@@ -34,13 +19,13 @@
 
     <!-- We define some custom strings for the default error activity -->
     <!-- This only applies when using the default error activity, of course! -->
-    <!-- To see them, disable the custom error activity in SampleCrashingApplication -->
-    <string name="customactivityoncrash_error_activity_error_occurred_explanation">An error occurred in this sample app. This is the default error activity with customized strings.</string>
-    <string name="customactivityoncrash_error_activity_unknown_exception">No stacktrace available!</string>
-    <string name="customactivityoncrash_error_activity_restart_app">Restart now</string>
-    <string name="customactivityoncrash_error_activity_close_app">Close now</string>
-    <string name="customactivityoncrash_error_activity_error_details">Error information</string>
-    <string name="customactivityoncrash_error_activity_error_details_title">Error information</string>
-    <string name="customactivityoncrash_error_activity_error_details_close">OK</string>
+    <!-- To see them, uncomment them and disable the custom error activity in SampleCrashingApplication -->
+    <!--<string name="customactivityoncrash_error_activity_error_occurred_explanation">An error occurred in this sample app. This is the default error activity with customized strings.</string>-->
+    <!--<string name="customactivityoncrash_error_activity_unknown_exception">No stacktrace available!</string>-->
+    <!--<string name="customactivityoncrash_error_activity_restart_app">Restart now</string>-->
+    <!--<string name="customactivityoncrash_error_activity_close_app">Close now</string>-->
+    <!--<string name="customactivityoncrash_error_activity_error_details">Error information</string>-->
+    <!--<string name="customactivityoncrash_error_activity_error_details_title">Error information</string>-->
+    <!--<string name="customactivityoncrash_error_activity_error_details_close">OK</string>-->
 
 </resources>

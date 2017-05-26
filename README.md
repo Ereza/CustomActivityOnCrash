@@ -119,7 +119,7 @@ If you use this, the activity **must** be declared in your `AndroidManifest.xml`
 Example:
 ```xml
 <activity
-    android:name="cat.ereza.sample.customactivityoncrash.activity.CustomErrorActivity"
+    android:name="cat.ereza.customactivityoncrash.sample.CustomErrorActivity"
     android:label="@string/error_title"
     android:process=":error_activity" />
 ```

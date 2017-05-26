@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Eduard Ereza Martínez
+ * Copyright 2014-2017 Eduard Ereza Martínez
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 
 package cat.ereza.customactivityoncrash.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -31,10 +30,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import cat.ereza.customactivityoncrash.CaocConfig;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 import cat.ereza.customactivityoncrash.R;
 
-public final class DefaultErrorActivity extends Activity {
+public final class DefaultErrorActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,31 +48,28 @@ public final class DefaultErrorActivity extends Activity {
         //It is recommended that you follow this logic if implementing a custom error activity.
         Button restartButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_restart_button);
 
-        final Class<? extends Activity> restartActivityClass = CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
-        final CustomActivityOnCrash.EventListener eventListener = CustomActivityOnCrash.getEventListenerFromIntent(getIntent());
+        final CaocConfig config = CustomActivityOnCrash.getConfigFromIntent(getIntent());
 
-        if (restartActivityClass != null) {
+        if (config.isShowRestartButton() && config.getRestartActivityClass()!=null) {
             restartButton.setText(R.string.customactivityoncrash_error_activity_restart_app);
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
-                    CustomActivityOnCrash.restartApplicationWithIntent(DefaultErrorActivity.this, intent, eventListener);
+                    CustomActivityOnCrash.restartApplication(DefaultErrorActivity.this, config);
                 }
             });
         } else {
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    CustomActivityOnCrash.closeApplication(DefaultErrorActivity.this, eventListener);
+                    CustomActivityOnCrash.closeApplication(DefaultErrorActivity.this, config);
                 }
             });
         }
 
         Button moreInfoButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_more_info_button);
 
-        if (CustomActivityOnCrash.isShowErrorDetailsFromIntent(getIntent())) {
-
+        if (config.isShowErrorDetails()) {
             moreInfoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -99,28 +96,19 @@ public final class DefaultErrorActivity extends Activity {
             moreInfoButton.setVisibility(View.GONE);
         }
 
-        int defaultErrorActivityDrawableId = CustomActivityOnCrash.getDefaultErrorActivityDrawableIdFromIntent(getIntent());
+        Integer defaultErrorActivityDrawableId = config.getErrorDrawable();
         ImageView errorImageView = ((ImageView) findViewById(R.id.customactivityoncrash_error_activity_image));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            errorImageView.setImageDrawable(getResources().getDrawable(defaultErrorActivityDrawableId, getTheme()));
-        } else {
-            //noinspection deprecation
-            errorImageView.setImageDrawable(getResources().getDrawable(defaultErrorActivityDrawableId));
+
+        if (defaultErrorActivityDrawableId != null) {
+            errorImageView.setImageDrawable(ResourcesCompat.getDrawable(getResources(), defaultErrorActivityDrawableId, getTheme()));
         }
     }
 
     private void copyErrorToClipboard() {
-        String errorInformation =
-                CustomActivityOnCrash.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
+        String errorInformation = CustomActivityOnCrash.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText(getString(R.string.customactivityoncrash_error_activity_error_details_clipboard_label), errorInformation);
-            clipboard.setPrimaryClip(clip);
-        } else {
-            //noinspection deprecation
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            clipboard.setText(errorInformation);
-        }
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(getString(R.string.customactivityoncrash_error_activity_error_details_clipboard_label), errorInformation);
+        clipboard.setPrimaryClip(clip);
     }
 }
