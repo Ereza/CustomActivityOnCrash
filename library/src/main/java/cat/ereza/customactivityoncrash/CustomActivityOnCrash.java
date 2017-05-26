@@ -27,6 +27,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -63,6 +65,7 @@ public final class CustomActivityOnCrash {
     private static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android.internal.os";
     private static final int MAX_STACK_TRACE_SIZE = 131071; //128 KB - 1
     private static final int TIMESTAMP_DIFFERENCE_TO_AVOID_RESTART_LOOPS_IN_MILLIS = 3000;
+    private static final int MAX_ACTIVITIES_IN_LOG = 50;
 
     //Shared preferences
     private static final String SHARED_PREFERENCES_FILE = "custom_activity_on_crash";
@@ -71,13 +74,11 @@ public final class CustomActivityOnCrash {
     //Internal variables
     @SuppressLint("StaticFieldLeak") //This is an application-wide component
     private static Application application;
+    private static CaocConfig config = new CaocConfig();
+    private static Deque<String> activityLog = new ArrayDeque<>(MAX_ACTIVITIES_IN_LOG);
     private static WeakReference<Activity> lastActivityCreated = new WeakReference<>(null);
     private static boolean isInBackground = true;
 
-    //Configuration object
-    private static CaocConfig config = new CaocConfig();
-
-    private static Deque<String> activityLog = new ArrayDeque<>(50);
 
     /**
      * Installs CustomActivityOnCrash on the application using the default error activity.
@@ -85,7 +86,7 @@ public final class CustomActivityOnCrash {
      * @param context Context to use for obtaining the ApplicationContext. Must not be null.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void install(final Context context) {
+    public static void install(@Nullable final Context context) {
         try {
             if (context == null) {
                 Log.e(TAG, "Install failed: context is null!");
@@ -252,7 +253,8 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The stacktrace, or null if not provided.
      */
-    public static String getStackTraceFromIntent(Intent intent) {
+    @NonNull
+    public static String getStackTraceFromIntent(@NonNull Intent intent) {
         return intent.getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE);
     }
 
@@ -262,7 +264,8 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The config, or null if not provided.
      */
-    public static CaocConfig getConfigFromIntent(Intent intent) {
+    @NonNull
+    public static CaocConfig getConfigFromIntent(@NonNull Intent intent) {
         return (CaocConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
     }
 
@@ -272,7 +275,8 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The activity log, or null if not provided.
      */
-    public static String getActivityLogFromIntent(Intent intent) {
+    @Nullable
+    public static String getActivityLogFromIntent(@NonNull Intent intent) {
         return intent.getStringExtra(CustomActivityOnCrash.EXTRA_ACTIVITY_LOG);
     }
 
@@ -283,7 +287,8 @@ public final class CustomActivityOnCrash {
      * @param intent  The Intent. Must not be null.
      * @return The full error details.
      */
-    public static String getAllErrorDetailsFromIntent(Context context, Intent intent) {
+    @NonNull
+    public static String getAllErrorDetailsFromIntent(@NonNull Context context, @NonNull Intent intent) {
         //I don't think that this needs localization because it's a development string...
 
         Date currentDate = new Date();
@@ -313,7 +318,7 @@ public final class CustomActivityOnCrash {
 
         if (activityLog != null) {
             errorDetails += "\nUser actions: \n";
-            errorDetails += getActivityLogFromIntent(intent);
+            errorDetails += activityLog;
         }
         return errorDetails;
     }
@@ -329,7 +334,7 @@ public final class CustomActivityOnCrash {
      * @param intent   The Intent. Must not be null.
      * @param config   The config object as obtained by calling getConfigFromIntent.
      */
-    public static void restartApplicationWithIntent(Activity activity, Intent intent, CaocConfig config) {
+    public static void restartApplicationWithIntent(@NonNull Activity activity, @NonNull Intent intent, @NonNull CaocConfig config) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         if (config.getEventListener() != null) {
             config.getEventListener().onRestartAppFromErrorActivity();
@@ -339,7 +344,7 @@ public final class CustomActivityOnCrash {
         killCurrentProcess();
     }
 
-    public static void restartApplication(Activity activity, CaocConfig config) {
+    public static void restartApplication(@NonNull Activity activity, @NonNull CaocConfig config) {
         Intent intent = new Intent(activity, config.getRestartActivityClass());
         restartApplicationWithIntent(activity, intent, config);
     }
@@ -352,7 +357,7 @@ public final class CustomActivityOnCrash {
      * @param activity The current error activity. Must not be null.
      * @param config   The config object as obtained by calling getConfigFromIntent.
      */
-    public static void closeApplication(Activity activity, CaocConfig config) {
+    public static void closeApplication(@NonNull Activity activity, @NonNull CaocConfig config) {
         if (config.getEventListener() != null) {
             config.getEventListener().onCloseAppFromErrorActivity();
         }
@@ -369,6 +374,7 @@ public final class CustomActivityOnCrash {
      * @return the current configuration
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
     public static CaocConfig getConfig() {
         return config;
     }
@@ -380,7 +386,7 @@ public final class CustomActivityOnCrash {
      * @param config the configuration to use
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static void setConfig(CaocConfig config) {
+    public static void setConfig(@NonNull CaocConfig config) {
         CustomActivityOnCrash.config = config;
     }
 
@@ -393,7 +399,7 @@ public final class CustomActivityOnCrash {
      * @param activityClass The activity class to launch when the app crashes
      * @return true if this stack trace is conflictive and the activity must not be launched, false otherwise
      */
-    private static boolean isStackTraceLikelyConflictive(Throwable throwable, Class<? extends Activity> activityClass) {
+    private static boolean isStackTraceLikelyConflictive(@NonNull Throwable throwable, @NonNull Class<? extends Activity> activityClass) {
         do {
             StackTraceElement[] stackTrace = throwable.getStackTrace();
             for (StackTraceElement element : stackTrace) {
@@ -412,7 +418,8 @@ public final class CustomActivityOnCrash {
      * @param dateFormat DateFormat to use to convert from Date to String
      * @return The formatted date, or "Unknown" if unable to determine it.
      */
-    private static String getBuildDateAsString(Context context, DateFormat dateFormat) {
+    @Nullable
+    private static String getBuildDateAsString(@NonNull Context context, @NonNull DateFormat dateFormat) {
         long buildDate;
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
@@ -441,6 +448,7 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return The version name, or "Unknown if unable to determine it.
      */
+    @NonNull
     private static String getVersionName(Context context) {
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
@@ -456,6 +464,7 @@ public final class CustomActivityOnCrash {
      *
      * @return The device model name (i.e., "LGE Nexus 5")
      */
+    @NonNull
     private static String getDeviceModelName() {
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
@@ -472,7 +481,8 @@ public final class CustomActivityOnCrash {
      * @param s The string to capitalize
      * @return The capitalized string
      */
-    private static String capitalize(String s) {
+    @NonNull
+    private static String capitalize(@Nullable String s) {
         if (s == null || s.length() == 0) {
             return "";
         }
@@ -493,7 +503,8 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return The guessed restart activity class, or null if no suitable one is found
      */
-    private static Class<? extends Activity> guessRestartActivityClass(Context context) {
+    @Nullable
+    private static Class<? extends Activity> guessRestartActivityClass(@NonNull Context context) {
         Class<? extends Activity> resolvedActivityClass;
 
         //If action is defined, use that
@@ -515,7 +526,8 @@ public final class CustomActivityOnCrash {
      * @return A valid activity class, or null if no suitable one is found
      */
     @SuppressWarnings("unchecked")
-    private static Class<? extends Activity> getRestartActivityClassWithIntentFilter(Context context) {
+    @Nullable
+    private static Class<? extends Activity> getRestartActivityClassWithIntentFilter(@NonNull Context context) {
         Intent searchedIntent = new Intent().setAction(INTENT_ACTION_RESTART_ACTIVITY).setPackage(context.getPackageName());
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(searchedIntent,
                 PackageManager.GET_RESOLVED_FILTER);
@@ -541,7 +553,8 @@ public final class CustomActivityOnCrash {
      * @return A valid activity class, or null if no suitable one is found
      */
     @SuppressWarnings("unchecked")
-    private static Class<? extends Activity> getLauncherActivity(Context context) {
+    @Nullable
+    private static Class<? extends Activity> getLauncherActivity(@NonNull Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
         if (intent != null) {
             try {
@@ -563,7 +576,8 @@ public final class CustomActivityOnCrash {
      * @param context A valid context. Must not be null.
      * @return The guessed error activity class, or the default error activity if not found
      */
-    private static Class<? extends Activity> guessErrorActivityClass(Context context) {
+    @NonNull
+    private static Class<? extends Activity> guessErrorActivityClass(@NonNull Context context) {
         Class<? extends Activity> resolvedActivityClass;
 
         //If action is defined, use that
@@ -585,7 +599,8 @@ public final class CustomActivityOnCrash {
      * @return A valid activity class, or null if no suitable one is found
      */
     @SuppressWarnings("unchecked")
-    private static Class<? extends Activity> getErrorActivityClassWithIntentFilter(Context context) {
+    @Nullable
+    private static Class<? extends Activity> getErrorActivityClassWithIntentFilter(@NonNull Context context) {
         Intent searchedIntent = new Intent().setAction(INTENT_ACTION_ERROR_ACTIVITY).setPackage(context.getPackageName());
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(searchedIntent,
                 PackageManager.GET_RESOLVED_FILTER);
@@ -618,7 +633,7 @@ public final class CustomActivityOnCrash {
      * @param timestamp The current timestamp.
      */
     @SuppressLint("ApplySharedPref") //This must be done immediately since we are killing the app
-    private static void setLastCrashTimestamp(Context context, long timestamp) {
+    private static void setLastCrashTimestamp(@NonNull Context context, long timestamp) {
         context.getSharedPreferences(SHARED_PREFERENCES_FILE, Context.MODE_PRIVATE).edit().putLong(SHARED_PREFERENCES_FIELD_TIMESTAMP, timestamp).commit();
     }
 
@@ -627,7 +642,7 @@ public final class CustomActivityOnCrash {
      *
      * @return The last crash timestamp, or -1 if not set.
      */
-    private static long getLastCrashTimestamp(Context context) {
+    private static long getLastCrashTimestamp(@NonNull Context context) {
         return context.getSharedPreferences(SHARED_PREFERENCES_FILE, Context.MODE_PRIVATE).getLong(SHARED_PREFERENCES_FIELD_TIMESTAMP, -1);
     }
 
@@ -637,7 +652,7 @@ public final class CustomActivityOnCrash {
      *
      * @return true if the app has crashed in the last seconds, false otherwise.
      */
-    private static boolean hasCrashedInTheLastSeconds(Context context) {
+    private static boolean hasCrashedInTheLastSeconds(@NonNull Context context) {
         long lastTimestamp = getLastCrashTimestamp(context);
         long currentTimestamp = new Date().getTime();
 

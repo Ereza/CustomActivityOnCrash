@@ -23,6 +23,7 @@ import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
@@ -40,7 +41,7 @@ public final class DefaultErrorActivity extends AppCompatActivity {
 
     @SuppressLint("PrivateResource")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //This is needed to avoid a crash if the developer has not specified

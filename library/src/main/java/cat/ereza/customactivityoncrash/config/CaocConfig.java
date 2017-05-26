@@ -18,6 +18,8 @@ package cat.ereza.customactivityoncrash.config;
 
 import android.app.Activity;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
@@ -66,57 +68,60 @@ public class CaocConfig implements Serializable {
         this.trackActivities = trackActivities;
     }
 
+    @Nullable
+    @DrawableRes
     public Integer getErrorDrawable() {
         return errorDrawable;
     }
 
-    public void setErrorDrawable(Integer errorDrawable) {
+    public void setErrorDrawable(@Nullable @DrawableRes Integer errorDrawable) {
         this.errorDrawable = errorDrawable;
     }
 
+    @Nullable
     public Class<? extends Activity> getErrorActivityClass() {
         return errorActivityClass;
     }
 
-    public void setErrorActivityClass(Class<? extends Activity> errorActivityClass) {
+    public void setErrorActivityClass(@Nullable Class<? extends Activity> errorActivityClass) {
         this.errorActivityClass = errorActivityClass;
     }
 
+    @Nullable
     public Class<? extends Activity> getRestartActivityClass() {
         return restartActivityClass;
     }
 
-    public void setRestartActivityClass(Class<? extends Activity> restartActivityClass) {
+    public void setRestartActivityClass(@Nullable Class<? extends Activity> restartActivityClass) {
         this.restartActivityClass = restartActivityClass;
     }
 
+    @Nullable
     public CustomActivityOnCrash.EventListener getEventListener() {
         return eventListener;
     }
 
-    public void setEventListener(CustomActivityOnCrash.EventListener eventListener) {
+    public void setEventListener(@Nullable CustomActivityOnCrash.EventListener eventListener) {
         this.eventListener = eventListener;
     }
 
     public static class Builder {
         private CaocConfig config;
 
+        @NonNull
         public static Builder create() {
             Builder builder = new Builder();
             CaocConfig currentConfig = CustomActivityOnCrash.getConfig();
 
             CaocConfig config = new CaocConfig();
-
-            if (currentConfig != null) {
-                config.launchWhenInBackground = currentConfig.launchWhenInBackground;
-                config.showErrorDetails = currentConfig.showErrorDetails;
-                config.showRestartButton = currentConfig.showRestartButton;
-                config.trackActivities = currentConfig.trackActivities;
-                config.errorDrawable = currentConfig.errorDrawable;
-                config.errorActivityClass = currentConfig.errorActivityClass;
-                config.restartActivityClass = currentConfig.restartActivityClass;
-                config.eventListener = currentConfig.eventListener;
-            }
+            config.launchWhenInBackground = currentConfig.launchWhenInBackground;
+            config.showErrorDetails = currentConfig.showErrorDetails;
+            config.showRestartButton = currentConfig.showRestartButton;
+            config.trackActivities = currentConfig.trackActivities;
+            config.errorDrawable = currentConfig.errorDrawable;
+            config.errorActivityClass = currentConfig.errorActivityClass;
+            config.restartActivityClass = currentConfig.restartActivityClass;
+            config.eventListener = currentConfig.eventListener;
 
             builder.config = config;
 
@@ -130,6 +135,7 @@ public class CaocConfig implements Serializable {
          * This has no effect in API<14 and the error activity is always launched.
          * The default is true (the app will be brought to front when a crash occurs).
          */
+        @NonNull
         public Builder launchWhenInBackground(boolean launchWhenInBackground) {
             config.launchWhenInBackground = launchWhenInBackground;
             return this;
@@ -141,6 +147,7 @@ public class CaocConfig implements Serializable {
          * false if you want it to be hidden.
          * The default is true.
          */
+        @NonNull
         public Builder showErrorDetails(boolean showErrorDetails) {
             config.showErrorDetails = showErrorDetails;
             return this;
@@ -154,6 +161,7 @@ public class CaocConfig implements Serializable {
          * a close button will still be used by the default error activity.
          * The default is true.
          */
+        @NonNull
         public Builder showRestartButton(boolean showRestartButton) {
             config.showRestartButton = showRestartButton;
             return this;
@@ -164,6 +172,7 @@ public class CaocConfig implements Serializable {
          * so they are reported when an error occurs.
          * The default is false.
          */
+        @NonNull
         public Builder trackActivities(boolean trackActivities) {
             config.trackActivities = trackActivities;
             return this;
@@ -174,7 +183,8 @@ public class CaocConfig implements Serializable {
          * Set this if you want to use an image other than the default one.
          * The default is R.drawable.customactivityoncrash_error_image (a cute upside-down bug).
          */
-        public Builder errorDrawable(@DrawableRes Integer errorDrawable) {
+        @NonNull
+        public Builder errorDrawable(@Nullable @DrawableRes Integer errorDrawable) {
             config.errorDrawable = errorDrawable;
             return this;
         }
@@ -183,7 +193,8 @@ public class CaocConfig implements Serializable {
          * Sets the error activity class to launch when a crash occurs.
          * If null, the default error activity will be used.
          */
-        public Builder errorActivity(Class<? extends Activity> errorActivityClass) {
+        @NonNull
+        public Builder errorActivity(@Nullable Class<? extends Activity> errorActivityClass) {
             config.errorActivityClass = errorActivityClass;
             return this;
         }
@@ -193,7 +204,8 @@ public class CaocConfig implements Serializable {
          * If not set or set to null, the default launch activity will be used.
          * If your app has no launch activities and this is not set, the default error activity will close instead.
          */
-        public Builder restartActivity(Class<? extends Activity> restartActivityClass) {
+        @NonNull
+        public Builder restartActivity(@Nullable Class<? extends Activity> restartActivityClass) {
             config.restartActivityClass = restartActivityClass;
             return this;
         }
@@ -206,7 +218,8 @@ public class CaocConfig implements Serializable {
          * @param eventListener The event listener.
          * @throws IllegalArgumentException if the eventListener is an inner or anonymous class
          */
-        public Builder eventListener(CustomActivityOnCrash.EventListener eventListener) {
+        @NonNull
+        public Builder eventListener(@Nullable CustomActivityOnCrash.EventListener eventListener) {
             if (eventListener != null && eventListener.getClass().getEnclosingClass() != null && !Modifier.isStatic(eventListener.getClass().getModifiers())) {
                 throw new IllegalArgumentException("The event listener cannot be an inner or anonymous class, because it will need to be serialized. Change it to a class of its own, or make it a static inner class.");
             } else {
@@ -215,6 +228,7 @@ public class CaocConfig implements Serializable {
             return this;
         }
 
+        @NonNull
         public CaocConfig get() {
             return config;
         }
