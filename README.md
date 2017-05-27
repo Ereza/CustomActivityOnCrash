@@ -33,26 +33,26 @@ However, it's recommended to do it on your `Application` class so it becomes ava
 
 Add a snippet like this to your `Application` class:
 ```java
-    @Override
-    public void onCreate() {
-        super.onCreate();
+@Override
+public void onCreate() {
+    super.onCreate();
 
-        CaocConfig.Builder.create()
-            .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT) //default: CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM
-            .showErrorDetails(false) //default: true
-            .showRestartButton(false) //default: true
-            .trackActivities(true) //default: false
-            .errorDrawable(R.drawable.ic_custom_drawable) //default: bug image
-            .restartActivity(YourCustomActivity.class) //default: null (your app's launch activity)
-            .errorActivity(YourCustomErrorActivity.class) //default: null (default error activity)
-            .eventListener(new YourCustomEventListener()) //default: null
-            .apply();
-    }
+    CaocConfig.Builder.create()
+        .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT) //default: CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM
+        .showErrorDetails(false) //default: true
+        .showRestartButton(false) //default: true
+        .trackActivities(true) //default: false
+        .errorDrawable(R.drawable.ic_custom_drawable) //default: bug image
+        .restartActivity(YourCustomActivity.class) //default: null (your app's launch activity)
+        .errorActivity(YourCustomErrorActivity.class) //default: null (default error activity)
+        .eventListener(new YourCustomEventListener()) //default: null
+        .apply();
+}
 ```
 
-### Customization options
+## Customization options
 
-**Custom behavior**
+### Custom behavior
 
 Here is a more detailed explanation of each option:
 
@@ -144,11 +144,11 @@ The EventListener you provide can not be an anonymous or non-static inner class,
 If you set it to `null`, no event listener will be invoked.
 The default is `null`.
 
-**Customization of the default activity**
+### Customization of the default activity
 
 You can override several resources to customize the default activity:
 
-*Theme:*
+**Theme:**
 
 The activity uses your application theme by default. It must be a child of `Theme.AppCompat` or a default one will be used.
 If you want to specify a specific theme only for the error activity, you can do so by redeclaring it on your manifest like this:
@@ -160,29 +160,29 @@ If you want to specify a specific theme only for the error activity, you can do 
     android:process=":error_activity" />
 ```
 
-*Image:*
+**Image:**
 
 By default, an image of a bug is displayed. You can change it to any image by using the provided `errorDrawable(int)` method.
 You can also do it the old way and create a `customactivityoncrash_error_image` drawable on all density buckets (mdpi, hdpi, xhdpi, xxhdpi and xxxhdpi).
 
-*Strings:*
+**Strings:**
 
 You can provide new strings and translations for the default error activity strings by overriding the following strings:
 ```xml
-    <string name="customactivityoncrash_error_activity_error_occurred_explanation">An unexpected error occurred.\nSorry for the inconvenience.</string>
-    <string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
-    <string name="customactivityoncrash_error_activity_close_app">Close app</string>
-    <string name="customactivityoncrash_error_activity_error_details">Error details</string>
-    <string name="customactivityoncrash_error_activity_error_details_title">Error details</string>
-    <string name="customactivityoncrash_error_activity_error_details_close">Close</string>
-    <string name="customactivityoncrash_error_activity_error_details_copy">Copy to clipboard</string>
-    <string name="customactivityoncrash_error_activity_error_details_copied">Copied to clipboard</string>
-    <string name="customactivityoncrash_error_activity_error_details_clipboard_label">Error information</string>
+<string name="customactivityoncrash_error_activity_error_occurred_explanation">An unexpected error occurred.\nSorry for the inconvenience.</string>
+<string name="customactivityoncrash_error_activity_restart_app">Restart app</string>
+<string name="customactivityoncrash_error_activity_close_app">Close app</string>
+<string name="customactivityoncrash_error_activity_error_details">Error details</string>
+<string name="customactivityoncrash_error_activity_error_details_title">Error details</string>
+<string name="customactivityoncrash_error_activity_error_details_close">Close</string>
+<string name="customactivityoncrash_error_activity_error_details_copy">Copy to clipboard</string>
+<string name="customactivityoncrash_error_activity_error_details_copied">Copied to clipboard</string>
+<string name="customactivityoncrash_error_activity_error_details_clipboard_label">Error information</string>
 ```
 
 *There is a `sample` project module with examples of these overrides. If in doubt, check the code in that module.*
 
-**Completely custom error activity**
+### Completely custom error activity
 
 If you choose to create your own completely custom error activity, you can use these methods:
 
@@ -218,7 +218,7 @@ CustomActivityOnCrash.closeApplication(activity, eventListener);
 Closes the app and kills the current process.
 You **MUST** call this to close the app, or you will end up having several Application class instances and experience multiprocess issues.
 
-*The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.*
+**The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.**
 
 ## Using Proguard?
 
