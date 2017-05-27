@@ -54,95 +54,95 @@ public void onCreate() {
 
 ### Custom behavior
 
-Here is a more detailed explanation of each option:
+**Here is a more detailed explanation of each option that can be set using `CaocConfig.Builder`:**
 
 ```java
 launchWhenInBackground(int);
 ```
-This method defines if the error activity should be launched when the app crashes while on background.
-There are three modes:
-- BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM: launch the error activity even if the app is in background.
-- BackgroundMode.BACKGROUND_MODE_CRASH: launch the default system error when the app is in background.
-- BackgroundMode.BACKGROUND_MODE_SILENT: crash silently when the app is in background.
+> This method defines if the error activity should be launched when the app crashes while on background.
+> There are three modes:
+> - BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM: launch the error activity even if the app is in background.
+> - BackgroundMode.BACKGROUND_MODE_CRASH: launch the default system error when the app is in background.
+> - BackgroundMode.BACKGROUND_MODE_SILENT: crash silently when the app is in background.
 
 ```java
 showErrorDetails(boolean);
 ```
-This method defines if the error activity must show a button with error details.
-If you set it to `false`, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
-The default is `true`.
+> This method defines if the error activity must show a button with error details.
+> If you set it to `false`, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
+> The default is `true`.
 
 ```java
 trackActivities(boolean);
 ```
-This method defines if the library must track the activities the user visits and their lifecycle calls.
-This is displayed on the default error activity as part of the error details.
-The default is `false`.
+> This method defines if the library must track the activities the user visits and their lifecycle calls.
+> This is displayed on the default error activity as part of the error details.
+> The default is `false`.
 
 ```java
 showRestartButton(boolean);
 ```
-This method defines if the error activity must show a "Restart app" button or a "Close app" button.
-If you set it to `false`, the button on the default error activity will close the app instead of restarting.
-If you set it to `true` and your app has no launch activity, it will still display a "Close app" button!
-The default is `true`.
+> This method defines if the error activity must show a "Restart app" button or a "Close app" button.
+> If you set it to `false`, the button on the default error activity will close the app instead of restarting.
+> If you set it to `true` and your app has no launch activity, it will still display a "Close app" button!
+> The default is `true`.
 
 ```java
 errorDrawable(Integer);
 ```
-This method allows changing the default upside-down bug image with an image of your choice.
-You can pass a resource id for a drawable or a mipmap.
-The default is `null` (the bug image is used).
+> This method allows changing the default upside-down bug image with an image of your choice.
+> You can pass a resource id for a drawable or a mipmap.
+> The default is `null` (the bug image is used).
 
 ```java
 restartActivity(Class<? extends Activity>);
 ```
-This method sets the activity that must be launched by the error activity when the user presses the button to restart the app.
-If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
-`cat.ereza.customactivityoncrash.RESTART`, and if there is none, the default launchable activity on your app.
-If no launchable activity can be found and you didn't specify any, the "restart app" button will become a "close app" button,
-even if `showRestartButton` is set to `true`.
-
-As noted, you can also use the following intent-filter to specify the restart activity:
-```xml
-<intent-filter>
-    <!-- ... -->
-    <action android:name="cat.ereza.customactivityoncrash.RESTART" />
-</intent-filter>
-```
+> This method sets the activity that must be launched by the error activity when the user presses the button to restart the app.
+> If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
+> `cat.ereza.customactivityoncrash.RESTART`, and if there is none, the default launchable activity on your app.
+> If no launchable activity can be found and you didn't specify any, the "restart app" button will become a "close app" button,
+> even if `showRestartButton` is set to `true`.
+>
+> As noted, you can also use the following intent-filter to specify the restart activity:
+> ```xml
+> <intent-filter>
+>     <!-- ... -->
+>     <action android:name="cat.ereza.customactivityoncrash.RESTART" />
+> </intent-filter>
+> ```
 
 ```java
 errorActivity(Class<? extends Activity>);
 ```
-This method allows you to set a custom error activity to be launched, instead of the default one.
-Use it if you need further customization that is not just strings, colors or themes (see below).
-If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
-`cat.ereza.customactivityoncrash.ERROR`, and if there is none, a default error activity from the library.
-If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`. Not
-
-Example:
-```xml
-<activity
-    android:name="cat.ereza.customactivityoncrash.sample.CustomErrorActivity"
-    android:label="@string/error_title"
-    android:process=":error_activity" />
-```
-
-As noted, you can also use the following intent-filter to specify the error activity:
-```xml
-<intent-filter>
-    <!-- ... -->
-    <action android:name="cat.ereza.customactivityoncrash.ERROR" />
-</intent-filter>
-```
+> This method allows you to set a custom error activity to be launched, instead of the default one.
+> Use it if you need further customization that is not just strings, colors or themes (see below).
+> If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
+> `cat.ereza.customactivityoncrash.ERROR`, and if there is none, a default error activity from the library.
+> If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`. Not
+>
+> Example:
+> ```xml
+> <activity
+>     android:name="cat.ereza.customactivityoncrash.sample.CustomErrorActivity"
+>     android:label="@string/error_title"
+>     android:process=":error_activity" />
+> ```
+>
+> As noted, you can also use the following intent-filter to specify the error activity:
+> ```xml
+> <intent-filter>
+>     <!-- ... -->
+>     <action android:name="cat.ereza.customactivityoncrash.ERROR" />
+> </intent-filter>
+> ```
 
 ```java
 eventListener(EventListener);
 ```
-This method allows you to specify an event listener in order to get notified when the library shows the error activity, restarts or closes the app.
-The EventListener you provide can not be an anonymous or non-static inner class, because it needs to be serialized by the library. The library will throw an exception if you try to set an invalid class.
-If you set it to `null`, no event listener will be invoked.
-The default is `null`.
+> This method allows you to specify an event listener in order to get notified when the library shows the error activity, restarts or closes the app.
+> The EventListener you provide can not be an anonymous or non-static inner class, because it needs to be serialized by the library. The library will throw an exception if you try to set an invalid class.
+> If you set it to `null`, no event listener will be invoked.
+> The default is `null`.
 
 ### Customization of the default activity
 
@@ -189,34 +189,34 @@ If you choose to create your own completely custom error activity, you can use t
 ```java
 CustomActivityOnCrash.getStackTraceFromIntent(getIntent());
 ```
-Returns the stack trace that caused the error as a string.
+> Returns the stack trace that caused the error as a string.
 
 ```java
 CustomActivityOnCrash.getAllErrorDetailsFromIntent(getIntent());
 ```
-Returns several error details including the stack trace that caused the error, as a string. This is used in the default error activity error details dialog.
+> Returns several error details including the stack trace that caused the error, as a string. This is used in the default error activity error details dialog.
 
 ```java
 CustomActivityOnCrash.getConfigFromIntent(getIntent());
 ```
-Returns the config of the library when the crash happened. Used to call some methods.
+> Returns the config of the library when the crash happened. Used to call some methods.
 
 ```java
 CustomActivityOnCrash.restartApplication(activity, config);
 ```
-Kills the current process and restarts the app again with a `startActivity()` to the passed intent.
-You **MUST** call this to restart the app, or you will end up having several `Application` class instances and experience multiprocess issues.
+> Kills the current process and restarts the app again with a `startActivity()` to the passed intent.
+> You **MUST** call this to restart the app, or you will end up having several `Application` class instances and experience multiprocess issues.
 
 ```java
 CustomActivityOnCrash.restartApplicationWithIntent(activity, intent, config);
 ```
-The same as `CustomActivityOnCrash.restartApplication`, but allows you to specify a custom intent.
+> The same as `CustomActivityOnCrash.restartApplication`, but allows you to specify a custom intent.
 
 ```java
 CustomActivityOnCrash.closeApplication(activity, eventListener);
 ```
-Closes the app and kills the current process.
-You **MUST** call this to close the app, or you will end up having several Application class instances and experience multiprocess issues.
+> Closes the app and kills the current process.
+> You **MUST** call this to close the app, or you will end up having several Application class instances and experience multiprocess issues.
 
 **The `sample` project module includes an example of a custom error activity. If in doubt, check the code in that module.**
 
