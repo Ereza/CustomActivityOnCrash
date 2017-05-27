@@ -118,7 +118,7 @@ errorActivity(Class<? extends Activity>);
 > Use it if you need further customization that is not just strings, colors or themes (see below).
 > If you don't set it (or set it to null), the library will use the first activity on your manifest that has an intent-filter with action
 > `cat.ereza.customactivityoncrash.ERROR`, and if there is none, a default error activity from the library.
-> If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`. Not
+> If you use this, the activity **must** be declared in your `AndroidManifest.xml`, with `process` set to `:error_activity`.
 >
 > Example:
 > ```xml
