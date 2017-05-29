@@ -70,19 +70,19 @@ launchWhenInBackground(int);
 > The default is `BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM`.
 
 ```java
-showErrorDetails(boolean);
-```
-> This method defines if the error activity must show a button with error details.
-> If you set it to `false`, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
-> The default is `true`.
-
-```java
 enabled(boolean);
 ```
 > Defines if CustomActivityOnCrash crash interception mechanism is enabled.
 > Set it to `true` if you want CustomActivityOnCrash to intercept crashes,
 > `false` if you want them to be treated as if the library was not installed.
 > This can be used to enable or disable the library depending on flavors or buildTypes.
+> The default is `true`.
+
+```java
+showErrorDetails(boolean);
+```
+> This method defines if the error activity must show a button with error details.
+> If you set it to `false`, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
 > The default is `true`.
 
 ```java
