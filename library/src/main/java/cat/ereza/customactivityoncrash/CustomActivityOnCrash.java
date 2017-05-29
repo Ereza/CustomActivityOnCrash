@@ -64,7 +64,6 @@ public final class CustomActivityOnCrash {
     private static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
     private static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android.internal.os";
     private static final int MAX_STACK_TRACE_SIZE = 131071; //128 KB - 1
-    private static final int TIMESTAMP_DIFFERENCE_TO_AVOID_RESTART_LOOPS_IN_MILLIS = 3000;
     private static final int MAX_ACTIVITIES_IN_LOG = 50;
 
     //Shared preferences
@@ -107,85 +106,88 @@ public final class CustomActivityOnCrash {
                     Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                         @Override
                         public void uncaughtException(Thread thread, final Throwable throwable) {
-                            Log.e(TAG, "App has crashed, executing CustomActivityOnCrash's UncaughtExceptionHandler", throwable);
+                            if (config.isEnabled()) {
+                                Log.e(TAG, "App has crashed, executing CustomActivityOnCrash's UncaughtExceptionHandler", throwable);
 
-                            if (hasCrashedInTheLastSeconds(application)) {
-                                Log.e(TAG, "App already crashed recently, not starting custom error activity because we could enter a restart loop. Are you sure that your app does not crash directly on init?", throwable);
-                                if (oldHandler != null) {
-                                    oldHandler.uncaughtException(thread, throwable);
-                                    return;
-                                }
-                            } else {
-                                setLastCrashTimestamp(application, new Date().getTime());
-
-                                Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();
-
-                                if (errorActivityClass == null) {
-                                    errorActivityClass = guessErrorActivityClass(application);
-                                }
-
-                                if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
-                                    Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
+                                if (hasCrashedInTheLastSeconds(application)) {
+                                    Log.e(TAG, "App already crashed recently, not starting custom error activity because we could enter a restart loop. Are you sure that your app does not crash directly on init?", throwable);
                                     if (oldHandler != null) {
                                         oldHandler.uncaughtException(thread, throwable);
                                         return;
                                     }
-                                } else if (config.getBackgroundMode()== CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM || !isInBackground) {
+                                } else {
+                                    setLastCrashTimestamp(application, new Date().getTime());
 
-                                    final Intent intent = new Intent(application, errorActivityClass);
-                                    StringWriter sw = new StringWriter();
-                                    PrintWriter pw = new PrintWriter(sw);
-                                    throwable.printStackTrace(pw);
-                                    String stackTraceString = sw.toString();
+                                    Class<? extends Activity> errorActivityClass = config.getErrorActivityClass();
 
-                                    //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
-                                    //The limit is 1MB on Android but some devices seem to have it lower.
-                                    //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
-                                    //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
-                                    if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
-                                        String disclaimer = " [stack trace too large]";
-                                        stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
+                                    if (errorActivityClass == null) {
+                                        errorActivityClass = guessErrorActivityClass(application);
                                     }
-                                    intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
 
-                                    if (config.isTrackActivities()) {
-                                        String activityLogString = "";
-                                        while (!activityLog.isEmpty()) {
-                                            activityLogString += activityLog.poll();
+                                    if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
+                                        Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
+                                        if (oldHandler != null) {
+                                            oldHandler.uncaughtException(thread, throwable);
+                                            return;
                                         }
-                                        intent.putExtra(EXTRA_ACTIVITY_LOG, activityLogString);
-                                    }
+                                    } else if (config.getBackgroundMode() == CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM || !isInBackground) {
 
-                                    if (config.isShowRestartButton() && config.getRestartActivityClass() == null) {
-                                        //We can set the restartActivityClass because the app will terminate right now,
-                                        //and when relaunched, will be null again by default.
-                                        config.setRestartActivityClass(guessRestartActivityClass(application));
-                                    }
+                                        final Intent intent = new Intent(application, errorActivityClass);
+                                        StringWriter sw = new StringWriter();
+                                        PrintWriter pw = new PrintWriter(sw);
+                                        throwable.printStackTrace(pw);
+                                        String stackTraceString = sw.toString();
 
-                                    intent.putExtra(EXTRA_CONFIG, config);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    if (config.getEventListener() != null) {
-                                        config.getEventListener().onLaunchErrorActivity();
+                                        //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
+                                        //The limit is 1MB on Android but some devices seem to have it lower.
+                                        //See: http://developer.android.com/reference/android/os/TransactionTooLargeException.html
+                                        //And: http://stackoverflow.com/questions/11451393/what-to-do-on-transactiontoolargeexception#comment46697371_12809171
+                                        if (stackTraceString.length() > MAX_STACK_TRACE_SIZE) {
+                                            String disclaimer = " [stack trace too large]";
+                                            stackTraceString = stackTraceString.substring(0, MAX_STACK_TRACE_SIZE - disclaimer.length()) + disclaimer;
+                                        }
+                                        intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
+
+                                        if (config.isTrackActivities()) {
+                                            String activityLogString = "";
+                                            while (!activityLog.isEmpty()) {
+                                                activityLogString += activityLog.poll();
+                                            }
+                                            intent.putExtra(EXTRA_ACTIVITY_LOG, activityLogString);
+                                        }
+
+                                        if (config.isShowRestartButton() && config.getRestartActivityClass() == null) {
+                                            //We can set the restartActivityClass because the app will terminate right now,
+                                            //and when relaunched, will be null again by default.
+                                            config.setRestartActivityClass(guessRestartActivityClass(application));
+                                        }
+
+                                        intent.putExtra(EXTRA_CONFIG, config);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        if (config.getEventListener() != null) {
+                                            config.getEventListener().onLaunchErrorActivity();
+                                        }
+                                        application.startActivity(intent);
+                                    } else if (config.getBackgroundMode() == CaocConfig.BACKGROUND_MODE_CRASH) {
+                                        if (oldHandler != null) {
+                                            oldHandler.uncaughtException(thread, throwable);
+                                            return;
+                                        }
+                                        //If it is null (should not be), we let it continue and kill the process or it will be stuck
                                     }
-                                    application.startActivity(intent);
+                                    //Else (BACKGROUND_MODE_SILENT): do nothing and let the following code kill the process
                                 }
-                                else if (config.getBackgroundMode()== CaocConfig.BACKGROUND_MODE_CRASH){
-                                    if (oldHandler!=null){
-                                        oldHandler.uncaughtException(thread, throwable);
-                                        return;
-                                    }
-                                    //If it is null (should not be), we let it continue and kill the process or it will be stuck
+                                final Activity lastActivity = lastActivityCreated.get();
+                                if (lastActivity != null) {
+                                    //We finish the activity, this solves a bug which causes infinite recursion.
+                                    //See: https://github.com/ACRA/acra/issues/42
+                                    lastActivity.finish();
+                                    lastActivityCreated.clear();
                                 }
-                                //Else (BACKGROUND_MODE_SILENT): do nothing and let the following code kill the process
+                                killCurrentProcess();
+                            } else if (oldHandler != null) {
+                                oldHandler.uncaughtException(thread, throwable);
                             }
-                            final Activity lastActivity = lastActivityCreated.get();
-                            if (lastActivity != null) {
-                                //We finish the activity, this solves a bug which causes infinite recursion.
-                                //See: https://github.com/ACRA/acra/issues/42
-                                lastActivity.finish();
-                                lastActivityCreated.clear();
-                            }
-                            killCurrentProcess();
                         }
                     });
                     application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
@@ -664,7 +666,7 @@ public final class CustomActivityOnCrash {
         long lastTimestamp = getLastCrashTimestamp(context);
         long currentTimestamp = new Date().getTime();
 
-        return (lastTimestamp <= currentTimestamp && currentTimestamp - lastTimestamp < TIMESTAMP_DIFFERENCE_TO_AVOID_RESTART_LOOPS_IN_MILLIS);
+        return (lastTimestamp <= currentTimestamp && currentTimestamp - lastTimestamp < config.getMinTimeBetweenCrashesMs());
     }
 
     /**

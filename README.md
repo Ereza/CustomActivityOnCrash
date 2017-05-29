@@ -39,9 +39,11 @@ public void onCreate() {
 
     CaocConfig.Builder.create()
         .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT) //default: CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM
+        .enabled(false) //default: true
         .showErrorDetails(false) //default: true
         .showRestartButton(false) //default: true
         .trackActivities(true) //default: false
+        .minTimeBetweenCrashesMs(2000) //default: 3000
         .errorDrawable(R.drawable.ic_custom_drawable) //default: bug image
         .restartActivity(YourCustomActivity.class) //default: null (your app's launch activity)
         .errorActivity(YourCustomErrorActivity.class) //default: null (default error activity)
@@ -64,6 +66,7 @@ launchWhenInBackground(int);
 > - `BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM`: launch the error activity even if the app is in background.
 > - `BackgroundMode.BACKGROUND_MODE_CRASH`: launch the default system error when the app is in background.
 > - `BackgroundMode.BACKGROUND_MODE_SILENT`: crash silently when the app is in background.
+>
 > The default is `BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM`.
 
 ```java
@@ -71,6 +74,15 @@ showErrorDetails(boolean);
 ```
 > This method defines if the error activity must show a button with error details.
 > If you set it to `false`, the button on the default error activity will disappear, thus disabling the user from seeing the stack trace.
+> The default is `true`.
+
+```java
+enabled(boolean);
+```
+> Defines if CustomActivityOnCrash crash interception mechanism is enabled.
+> Set it to `true` if you want CustomActivityOnCrash to intercept crashes,
+> `false` if you want them to be treated as if the library was not installed.
+> This can be used to enable or disable the library depending on flavors or buildTypes.
 > The default is `true`.
 
 ```java
@@ -87,6 +99,14 @@ showRestartButton(boolean);
 > If you set it to `false`, the button on the default error activity will close the app instead of restarting.
 > If you set it to `true` and your app has no launch activity, it will still display a "Close app" button!
 > The default is `true`.
+
+```java
+minTimeBetweenCrashesMs(boolean);
+```
+> Defines the time that must pass between app crashes to determine that we are not in a crash loop.
+> If a crash has occurred less that this time ago, the error activity will not be launched and the system
+> crash screen will be invoked.
+> The default is `3000`.
 
 ```java
 errorDrawable(Integer);

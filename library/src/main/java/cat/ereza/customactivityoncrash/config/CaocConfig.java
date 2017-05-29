@@ -42,9 +42,11 @@ public class CaocConfig implements Serializable {
     public static final int BACKGROUND_MODE_CRASH = 2;
 
     private int backgroundMode = BACKGROUND_MODE_SHOW_CUSTOM;
+    private boolean enabled = true;
     private boolean showErrorDetails = true;
     private boolean showRestartButton = true;
     private boolean trackActivities = false;
+    private int minTimeBetweenCrashesMs = 3000;
     private Integer errorDrawable = null;
     private Class<? extends Activity> errorActivityClass = null;
     private Class<? extends Activity> restartActivityClass = null;
@@ -57,6 +59,14 @@ public class CaocConfig implements Serializable {
 
     public void setBackgroundMode(@BackgroundMode int backgroundMode) {
         this.backgroundMode = backgroundMode;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public boolean isShowErrorDetails() {
@@ -81,6 +91,14 @@ public class CaocConfig implements Serializable {
 
     public void setTrackActivities(boolean trackActivities) {
         this.trackActivities = trackActivities;
+    }
+
+    public int getMinTimeBetweenCrashesMs() {
+        return minTimeBetweenCrashesMs;
+    }
+
+    public void setMinTimeBetweenCrashesMs(int minTimeBetweenCrashesMs) {
+        this.minTimeBetweenCrashesMs = minTimeBetweenCrashesMs;
     }
 
     @Nullable
@@ -130,9 +148,11 @@ public class CaocConfig implements Serializable {
 
             CaocConfig config = new CaocConfig();
             config.backgroundMode = currentConfig.backgroundMode;
+            config.enabled = currentConfig.enabled;
             config.showErrorDetails = currentConfig.showErrorDetails;
             config.showRestartButton = currentConfig.showRestartButton;
             config.trackActivities = currentConfig.trackActivities;
+            config.minTimeBetweenCrashesMs = currentConfig.minTimeBetweenCrashesMs;
             config.errorDrawable = currentConfig.errorDrawable;
             config.errorActivityClass = currentConfig.errorActivityClass;
             config.restartActivityClass = currentConfig.restartActivityClass;
@@ -153,6 +173,18 @@ public class CaocConfig implements Serializable {
         @NonNull
         public Builder backgroundMode(@BackgroundMode int backgroundMode) {
             config.backgroundMode = backgroundMode;
+            return this;
+        }
+
+        /**
+         * Defines if CustomActivityOnCrash crash interception mechanism is enabled.
+         * Set it to true if you want CustomActivityOnCrash to intercept crashes,
+         * false if you want them to be treated as if the library was not installed.
+         * The default is true.
+         */
+        @NonNull
+        public Builder enabled(boolean enabled) {
+            config.enabled = enabled;
             return this;
         }
 
@@ -190,6 +222,18 @@ public class CaocConfig implements Serializable {
         @NonNull
         public Builder trackActivities(boolean trackActivities) {
             config.trackActivities = trackActivities;
+            return this;
+        }
+
+        /**
+         * Defines the time that must pass between app crashes to determine that we are not
+         * in a crash loop. If a crash has occurred less that this time ago,
+         * the error activity will not be launched and the system crash screen will be invoked.
+         * The default is 3000.
+         */
+        @NonNull
+        public Builder minTimeBetweenCrashesMs(int minTimeBetweenCrashesMs) {
+            config.minTimeBetweenCrashesMs = minTimeBetweenCrashesMs;
             return this;
         }
 
