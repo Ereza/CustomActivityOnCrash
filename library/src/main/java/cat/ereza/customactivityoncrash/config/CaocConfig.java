@@ -23,6 +23,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.io.Serializable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Modifier;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
@@ -30,6 +32,7 @@ import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 public class CaocConfig implements Serializable {
 
     @IntDef({BACKGROUND_MODE_CRASH, BACKGROUND_MODE_SHOW_CUSTOM, BACKGROUND_MODE_SILENT})
+    @Retention(RetentionPolicy.SOURCE)
     private @interface BackgroundMode {
         //I hate empty blocks
     }
