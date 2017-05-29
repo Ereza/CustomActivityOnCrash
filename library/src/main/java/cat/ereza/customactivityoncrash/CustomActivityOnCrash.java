@@ -124,7 +124,7 @@ public final class CustomActivityOnCrash {
                                     errorActivityClass = guessErrorActivityClass(application);
                                 }
 
-                                if (isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
+                                if (isCrashedOnErrorActivity(errorActivityClass) || isStackTraceLikelyConflictive(throwable, errorActivityClass)) {
                                     Log.e(TAG, "Your application class or your error activity have crashed, the custom activity will not be launched!");
                                     if (oldHandler != null) {
                                         oldHandler.uncaughtException(thread, throwable);
@@ -411,12 +411,25 @@ public final class CustomActivityOnCrash {
         do {
             StackTraceElement[] stackTrace = throwable.getStackTrace();
             for (StackTraceElement element : stackTrace) {
-                if ((element.getClassName().equals("android.app.ActivityThread") && element.getMethodName().equals("handleBindApplication")) || element.getClassName().equals(activityClass.getName())) {
+                if ((element.getClassName().equals("android.app.ActivityThread") && element.getMethodName().equals("handleBindApplication")) || element.getClassName().startsWith(activityClass.getName())) {
                     return true;
                 }
             }
         } while ((throwable = throwable.getCause()) != null);
         return false;
+    }
+
+    /**
+     * INTERNAL method that checks if crash activity is error activity. This is true in the following scenarios:
+     * - a fragment in error activity crashed (activityClass is not in the stack)
+     * - lastActivity is null
+     *
+     * @param activityClass The error activity (launch when a crash occurs)
+     * @return true if crash on error activity or lastActivity is null
+     */
+    private static boolean isCrashedOnErrorActivity(Class<? extends Activity> activityClass) {
+        Activity lastActivity = lastActivityCreated.get();
+        return lastActivity == null || lastActivity.getClass().getName().equals(activityClass.getName());
     }
 
     /**
