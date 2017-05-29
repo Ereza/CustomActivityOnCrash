@@ -63,11 +63,11 @@ launchWhenInBackground(int);
 ```
 > This method defines if the error activity should be launched when the app crashes while on background.
 > There are three modes:
-> - `BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM`: launch the error activity even if the app is in background.
-> - `BackgroundMode.BACKGROUND_MODE_CRASH`: launch the default system error when the app is in background.
-> - `BackgroundMode.BACKGROUND_MODE_SILENT`: crash silently when the app is in background.
+> - `CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM`: launch the error activity even if the app is in background.
+> - `CaocConfig.BACKGROUND_MODE_CRASH`: launch the default system error when the app is in background.
+> - `CaocConfig.BACKGROUND_MODE_SILENT`: crash silently when the app is in background.
 >
-> The default is `BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM`.
+> The default is `CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM`.
 
 ```java
 enabled(boolean);
