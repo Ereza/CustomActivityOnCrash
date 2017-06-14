@@ -19,8 +19,8 @@ package cat.ereza.customactivityoncrash.sample;
 import android.app.Application;
 import android.util.Log;
 
-import cat.ereza.customactivityoncrash.config.CaocConfig;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 
 public class SampleCrashingApplication extends Application {
 
