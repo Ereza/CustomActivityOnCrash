@@ -263,7 +263,7 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The stacktrace, or null if not provided.
      */
-    @NonNull
+    @Nullable
     public static String getStackTraceFromIntent(@NonNull Intent intent) {
         return intent.getStringExtra(CustomActivityOnCrash.EXTRA_STACK_TRACE);
     }
@@ -274,7 +274,7 @@ public final class CustomActivityOnCrash {
      * @param intent The Intent. Must not be null.
      * @return The config, or null if not provided.
      */
-    @NonNull
+    @Nullable
     public static CaocConfig getConfigFromIntent(@NonNull Intent intent) {
         return (CaocConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
     }
