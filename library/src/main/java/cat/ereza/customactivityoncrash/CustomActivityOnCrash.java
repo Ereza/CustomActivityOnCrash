@@ -74,7 +74,7 @@ public final class CustomActivityOnCrash {
     @SuppressLint("StaticFieldLeak") //This is an application-wide component
     private static Application application;
     private static CaocConfig config = new CaocConfig();
-    private static Deque<String> activityLog = new ArrayDeque<>(MAX_ACTIVITIES_IN_LOG);
+    private static final Deque<String> activityLog = new ArrayDeque<>(MAX_ACTIVITIES_IN_LOG);
     private static WeakReference<Activity> lastActivityCreated = new WeakReference<>(null);
     private static boolean isInBackground = true;
 
@@ -149,11 +149,11 @@ public final class CustomActivityOnCrash {
                                         intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
 
                                         if (config.isTrackActivities()) {
-                                            String activityLogString = "";
+                                            StringBuilder activityLogStringBuilder = new StringBuilder();
                                             while (!activityLog.isEmpty()) {
-                                                activityLogString += activityLog.poll();
+                                                activityLogStringBuilder.append(activityLog.poll());
                                             }
-                                            intent.putExtra(EXTRA_ACTIVITY_LOG, activityLogString);
+                                            intent.putExtra(EXTRA_ACTIVITY_LOG, activityLogStringBuilder.toString());
                                         }
 
                                         if (config.isShowRestartButton() && config.getRestartActivityClass() == null) {
@@ -192,7 +192,7 @@ public final class CustomActivityOnCrash {
                     });
                     application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
                         int currentlyStartedActivities = 0;
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+                        final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
                         @Override
                         public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -575,7 +575,7 @@ public final class CustomActivityOnCrash {
     @Nullable
     private static Class<? extends Activity> getLauncherActivity(@NonNull Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
-        if (intent != null) {
+        if (intent != null && intent.getComponent() != null) {
             try {
                 return (Class<? extends Activity>) Class.forName(intent.getComponent().getClassName());
             } catch (ClassNotFoundException e) {

@@ -16,6 +16,7 @@
 
 package cat.ereza.customactivityoncrash.sample.activity;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button crashMainThreadButton = (Button) findViewById(R.id.button_crash_main_thread);
-        Button crashBgThreadButton = (Button) findViewById(R.id.button_crash_bg_thread);
-        Button crashWithDelayButton = (Button) findViewById(R.id.button_crash_with_delay);
+        Button crashMainThreadButton = findViewById(R.id.button_crash_main_thread);
+        Button crashBgThreadButton = findViewById(R.id.button_crash_bg_thread);
+        Button crashWithDelayButton = findViewById(R.id.button_crash_with_delay);
 
         crashMainThreadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         crashBgThreadButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("StaticFieldLeak") //For demo purposes we don't care about leaks
             @Override
             public void onClick(View view) {
                 new AsyncTask<Void, Void, Void>() {
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         crashWithDelayButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("StaticFieldLeak") //For demo purposes we don't care about leaks
             @Override
             public void onClick(View view) {
                 new AsyncTask<Void, Void, Void>() {
