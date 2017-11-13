@@ -276,7 +276,15 @@ public final class CustomActivityOnCrash {
      */
     @Nullable
     public static CaocConfig getConfigFromIntent(@NonNull Intent intent) {
-        return (CaocConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
+        CaocConfig config = (CaocConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
+        if (config.isLogErrorOnRestart()) {
+            String stackTrace = getStackTraceFromIntent(intent);
+            if (stackTrace != null) {
+                Log.e(TAG, "The previous app process crashed. This is the stack trace of the crash:\n" + getStackTraceFromIntent(intent));
+            }
+        }
+
+        return config;
     }
 
     /**

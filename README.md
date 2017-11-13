@@ -42,6 +42,7 @@ public void onCreate() {
         .enabled(false) //default: true
         .showErrorDetails(false) //default: true
         .showRestartButton(false) //default: true
+        .logErrorOnRestart(false) //default: true
         .trackActivities(true) //default: false
         .minTimeBetweenCrashesMs(2000) //default: 3000
         .errorDrawable(R.drawable.ic_custom_drawable) //default: bug image
@@ -98,6 +99,15 @@ showRestartButton(boolean);
 > This method defines if the error activity must show a "Restart app" button or a "Close app" button.
 > If you set it to `false`, the button on the default error activity will close the app instead of restarting.
 > If you set it to `true` and your app has no launch activity, it will still display a "Close app" button!
+> The default is `true`.
+
+```java
+logErrorOnRestart(boolean);
+```
+> This controls if the stack trace must be relogged when the custom error activity is launched.
+> This functionality exists because the Android Studio default Logcat view only shows the output for the
+> current process. This makes it easier to see the stack trace of the crash. You can disable it if you
+> don't want an extra log.
 > The default is `true`.
 
 ```java

@@ -45,6 +45,7 @@ public class CaocConfig implements Serializable {
     private boolean enabled = true;
     private boolean showErrorDetails = true;
     private boolean showRestartButton = true;
+    private boolean logErrorOnRestart = true;
     private boolean trackActivities = false;
     private int minTimeBetweenCrashesMs = 3000;
     private Integer errorDrawable = null;
@@ -83,6 +84,14 @@ public class CaocConfig implements Serializable {
 
     public void setShowRestartButton(boolean showRestartButton) {
         this.showRestartButton = showRestartButton;
+    }
+
+    public boolean isLogErrorOnRestart() {
+        return logErrorOnRestart;
+    }
+
+    public void setLogErrorOnRestart(boolean logErrorOnRestart) {
+        this.logErrorOnRestart = logErrorOnRestart;
     }
 
     public boolean isTrackActivities() {
@@ -151,6 +160,7 @@ public class CaocConfig implements Serializable {
             config.enabled = currentConfig.enabled;
             config.showErrorDetails = currentConfig.showErrorDetails;
             config.showRestartButton = currentConfig.showRestartButton;
+            config.logErrorOnRestart = currentConfig.logErrorOnRestart;
             config.trackActivities = currentConfig.trackActivities;
             config.minTimeBetweenCrashesMs = currentConfig.minTimeBetweenCrashesMs;
             config.errorDrawable = currentConfig.errorDrawable;
@@ -211,6 +221,22 @@ public class CaocConfig implements Serializable {
         @NonNull
         public Builder showRestartButton(boolean showRestartButton) {
             config.showRestartButton = showRestartButton;
+            return this;
+        }
+
+        /**
+         * Defines if the stack trace must be logged again once the custom activity is shown.
+         * Set it to true if you want to log the stack trace again,
+         * false if you don't want the extra logging.
+         * This option exists because the default Android Studio logcat view only shows the output
+         * of the current process, and since the error activity runs on a new process,
+         * you can't see the previous output easily.
+         * Internally, it's logged when getConfigFromIntent() is called.
+         * The default is true.
+         */
+        @NonNull
+        public Builder logErrorOnRestart(boolean logErrorOnRestart) {
+            config.logErrorOnRestart = logErrorOnRestart;
             return this;
         }
 
