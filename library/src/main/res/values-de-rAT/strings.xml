@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="customactivityoncrash_error_activity_error_details">Fehlerdetails</string>
+    <string name="customactivityoncrash_error_activity_close_app">App beenden</string>
+    <string name="customactivityoncrash_error_activity_error_details_clipboard_label">Fehlerinformationen</string>
+    <string name="customactivityoncrash_error_activity_error_details_close">Beenden</string>
+    <string name="customactivityoncrash_error_activity_error_details_title">Fehlerdetails</string>
+    <string name="customactivityoncrash_error_activity_restart_app">App neu starten</string>
+    <string name="customactivityoncrash_error_activity_error_occurred_explanation">Ein unerwarteter Fehler ist aufgetreten.\nEntschuldigen sie die Unannehmlichkeit</string>
+    <string name="customactivityoncrash_error_activity_error_details_copy">In die Zwischenablage kopieren</string>
+    <string name="customactivityoncrash_error_activity_error_details_copied">In die Zwischenablage kopiert</string>
+</resources>
