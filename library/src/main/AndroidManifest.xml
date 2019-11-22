@@ -4,6 +4,7 @@
 
     <application>
         <activity
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
             android:name="cat.ereza.customactivityoncrash.activity.DefaultErrorActivity"
             android:process=":error_activity" />
         <provider
