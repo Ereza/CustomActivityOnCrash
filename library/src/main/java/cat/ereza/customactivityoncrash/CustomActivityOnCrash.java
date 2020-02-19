@@ -336,7 +336,8 @@ public final class CustomActivityOnCrash {
         //Added a space between line feeds to fix #18.
         //Ideally, we should not use this method at all... It is only formatted this way because of coupling with the default error activity.
         //We should move it to a method that returns a bean, and let anyone format it as they wish.
-        errorDetails += "Device: " + getDeviceModelName() + " \n \n";
+        errorDetails += "Device: " + getDeviceModelName() + " \n";
+        errorDetails += "OS version: Android " + Build.VERSION.RELEASE + " (SDK " + Build.VERSION.SDK_INT + ") \n \n";
         errorDetails += "Stack trace:  \n";
         errorDetails += getStackTraceFromIntent(intent);
 
