@@ -1,13 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.1"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
     resourcePrefix 'customactivityoncrash_'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 29
         versionCode 11
         versionName "2.2.1-SNAPSHOT"
     }
@@ -16,5 +16,5 @@ android {
 apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:27.0.1'
+    api 'androidx.appcompat:appcompat:1.1.0'
 }

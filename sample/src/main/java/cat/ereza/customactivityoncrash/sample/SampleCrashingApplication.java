@@ -37,7 +37,7 @@ public class SampleCrashingApplication extends Application {
                 //BackgroundMode.BACKGROUND_MODE_SHOW_CUSTOM: launch the error activity when the app is in background,
                 //BackgroundMode.BACKGROUND_MODE_CRASH: launch the default system error when the app is in background,
                 //BackgroundMode.BACKGROUND_MODE_SILENT: crash silently when the app is in background,
-//                .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT)
+                .backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT)
                 //This disables the interception of crashes. Use it to disable CustomActivityOnCrash (for example, depending on your buildType).
 //                .enabled(false)
                 //This hides the "error details" button in the error activity, thus hiding the stack trace

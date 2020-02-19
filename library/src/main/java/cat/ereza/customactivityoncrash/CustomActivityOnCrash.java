@@ -27,10 +27,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -105,7 +106,7 @@ public final class CustomActivityOnCrash {
                     //We define a default exception handler that does what we want so it can be called from Crashlytics/ACRA
                     Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
                         @Override
-                        public void uncaughtException(Thread thread, final Throwable throwable) {
+                        public void uncaughtException(@NonNull Thread thread, @NonNull final Throwable throwable) {
                             if (config.isEnabled()) {
                                 Log.e(TAG, "App has crashed, executing CustomActivityOnCrash's UncaughtExceptionHandler", throwable);
 
@@ -195,7 +196,7 @@ public final class CustomActivityOnCrash {
                         final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
                         @Override
-                        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                        public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
                             if (activity.getClass() != config.getErrorActivityClass()) {
                                 // Copied from ACRA:
                                 // Ignore activityClass because we want the last
@@ -209,40 +210,40 @@ public final class CustomActivityOnCrash {
                         }
 
                         @Override
-                        public void onActivityStarted(Activity activity) {
+                        public void onActivityStarted(@NonNull Activity activity) {
                             currentlyStartedActivities++;
                             isInBackground = (currentlyStartedActivities == 0);
                             //Do nothing
                         }
 
                         @Override
-                        public void onActivityResumed(Activity activity) {
+                        public void onActivityResumed(@NonNull Activity activity) {
                             if (config.isTrackActivities()) {
                                 activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " resumed\n");
                             }
                         }
 
                         @Override
-                        public void onActivityPaused(Activity activity) {
+                        public void onActivityPaused(@NonNull Activity activity) {
                             if (config.isTrackActivities()) {
                                 activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " paused\n");
                             }
                         }
 
                         @Override
-                        public void onActivityStopped(Activity activity) {
+                        public void onActivityStopped(@NonNull Activity activity) {
                             //Do nothing
                             currentlyStartedActivities--;
                             isInBackground = (currentlyStartedActivities == 0);
                         }
 
                         @Override
-                        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+                        public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
                             //Do nothing
                         }
 
                         @Override
-                        public void onActivityDestroyed(Activity activity) {
+                        public void onActivityDestroyed(@NonNull Activity activity) {
                             if (config.isTrackActivities()) {
                                 activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " destroyed\n");
                             }
@@ -277,7 +278,7 @@ public final class CustomActivityOnCrash {
     @Nullable
     public static CaocConfig getConfigFromIntent(@NonNull Intent intent) {
         CaocConfig config = (CaocConfig) intent.getSerializableExtra(CustomActivityOnCrash.EXTRA_CONFIG);
-        if (config.isLogErrorOnRestart()) {
+        if (config != null && config.isLogErrorOnRestart()) {
             String stackTrace = getStackTraceFromIntent(intent);
             if (stackTrace != null) {
                 Log.e(TAG, "The previous app process crashed. This is the stack trace of the crash:\n" + getStackTraceFromIntent(intent));
@@ -559,7 +560,7 @@ public final class CustomActivityOnCrash {
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(searchedIntent,
                 PackageManager.GET_RESOLVED_FILTER);
 
-        if (resolveInfos != null && resolveInfos.size() > 0) {
+        if (resolveInfos.size() > 0) {
             ResolveInfo resolveInfo = resolveInfos.get(0);
             try {
                 return (Class<? extends Activity>) Class.forName(resolveInfo.activityInfo.name);
@@ -632,7 +633,7 @@ public final class CustomActivityOnCrash {
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(searchedIntent,
                 PackageManager.GET_RESOLVED_FILTER);
 
-        if (resolveInfos != null && resolveInfos.size() > 0) {
+        if (resolveInfos.size() > 0) {
             ResolveInfo resolveInfo = resolveInfos.get(0);
             try {
                 return (Class<? extends Activity>) Class.forName(resolveInfo.activityInfo.name);

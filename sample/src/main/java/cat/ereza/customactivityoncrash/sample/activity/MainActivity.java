@@ -19,10 +19,11 @@ package cat.ereza.customactivityoncrash.sample.activity;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import cat.ereza.customactivityoncrash.sample.R;
 
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         } catch (InterruptedException e) {
                             //meh
                         }
-                        throw new RuntimeException("I am a not so cool exception, and I am delayed, so you can check if the app crashes when in background!)");
+                        throw new RuntimeException("I am a not so cool exception, and I am delayed, so you can check if the app crashes when in background!");
                     }
                 }.execute();
             }
