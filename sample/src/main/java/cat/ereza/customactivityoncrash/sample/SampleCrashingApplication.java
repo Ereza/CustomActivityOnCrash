@@ -76,9 +76,10 @@ public class SampleCrashingApplication extends Application {
 //                .eventListener(new CustomEventListener())
                 .apply();
 
-        //Initialize your error handler as normal.
+        //Initialize your other error handler as normal.
         //i.e., ACRA.init(this);
         //or Fabric.with(this, new Crashlytics());
+        //If you use ACRA, remember to enable alsoReportToAndroidFramework!
     }
 
     private static class CustomEventListener implements CustomActivityOnCrash.EventListener {

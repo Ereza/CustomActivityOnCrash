@@ -17,7 +17,11 @@ dependencies {
 
 ...and you are done!
 
-Of course, you can combine this library with any other crash handler such as Crashlytics, ACRA or Firebase, just set them up as you would normally.
+**You can combine this library with other crash handlers such as Crashlytics or ACRA.**
+
+If you are using Crashlytics, there's nothing to do, just use it normally.
+
+If you are using ACRA, you should initialize it inside `Application.onCreate` instead of `Application.attachBaseContext`, and enable `alsoReportToAndroidFramework`, otherwise, it will not work.
 
 ### Try it
 
@@ -268,9 +272,7 @@ The inner workings are based on [ACRA](https://github.com/ACRA/acra)'s dialog re
 
 ## Incompatibilities
 
-* CustomActivityOnCrash will not work in these cases:
-    * With any custom `UncaughtExceptionHandler` set after initializing the library, that does not call back to the original handler.
-    * With ACRA enabled and reporting mode set to `TOAST` or `DIALOG`.
+* CustomActivityOnCrash will not work with any custom `UncaughtExceptionHandler` set after initializing the library that does not call back to the original handler.
 * If your app initialization or error activity crash, there is a possibility of entering an infinite restart loop (this is checked by the library for the most common cases, but could happen in rarer cases).
 * The library has not been tested with multidex enabled. It uses Class.forName() to load classes, so maybe that could cause some problem in API<21. If you test it with such configuration, please provide feedback!
 * The library has not been tested with multiprocess apps. If you test it with such configuration, please provide feedback too!
