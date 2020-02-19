@@ -64,6 +64,7 @@ public final class CustomActivityOnCrash {
     private static final String INTENT_ACTION_RESTART_ACTIVITY = "cat.ereza.customactivityoncrash.RESTART";
     private static final String CAOC_HANDLER_PACKAGE_NAME = "cat.ereza.customactivityoncrash";
     private static final String DEFAULT_HANDLER_PACKAGE_NAME = "com.android.internal.os";
+    private static final int TIME_TO_CONSIDER_FOREGROUND_MS = 500;
     private static final int MAX_STACK_TRACE_SIZE = 131071; //128 KB - 1
     private static final int MAX_ACTIVITIES_IN_LOG = 50;
 
@@ -77,6 +78,7 @@ public final class CustomActivityOnCrash {
     private static CaocConfig config = new CaocConfig();
     private static final Deque<String> activityLog = new ArrayDeque<>(MAX_ACTIVITIES_IN_LOG);
     private static WeakReference<Activity> lastActivityCreated = new WeakReference<>(null);
+    private static long lastActivityCreatedTimestamp = 0L;
     private static boolean isInBackground = true;
 
 
@@ -131,7 +133,8 @@ public final class CustomActivityOnCrash {
                                             oldHandler.uncaughtException(thread, throwable);
                                             return;
                                         }
-                                    } else if (config.getBackgroundMode() == CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM || !isInBackground) {
+                                    } else if (config.getBackgroundMode() == CaocConfig.BACKGROUND_MODE_SHOW_CUSTOM || !isInBackground
+                                            || (lastActivityCreatedTimestamp >= new Date().getTime() - TIME_TO_CONSIDER_FOREGROUND_MS)) {
 
                                         final Intent intent = new Intent(application, errorActivityClass);
                                         StringWriter sw = new StringWriter();
@@ -203,6 +206,7 @@ public final class CustomActivityOnCrash {
                                 // application Activity that was started so that we can
                                 // explicitly kill it off.
                                 lastActivityCreated = new WeakReference<>(activity);
+                                lastActivityCreatedTimestamp = new Date().getTime();
                             }
                             if (config.isTrackActivities()) {
                                 activityLog.add(dateFormat.format(new Date()) + ": " + activity.getClass().getSimpleName() + " created\n");
