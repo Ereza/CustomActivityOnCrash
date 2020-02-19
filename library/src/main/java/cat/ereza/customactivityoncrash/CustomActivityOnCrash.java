@@ -33,6 +33,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -425,17 +428,31 @@ public final class CustomActivityOnCrash {
     /**
      * INTERNAL method that checks if the stack trace that just crashed is conflictive. This is true in the following scenarios:
      * - The application has crashed while initializing (handleBindApplication is in the stack)
-     * - The error activity has crashed (activityClass is in the stack)
+     * - The crash occurred inside the "error_activity" process
      *
      * @param throwable     The throwable from which the stack trace will be checked
      * @param activityClass The activity class to launch when the app crashes
      * @return true if this stack trace is conflictive and the activity must not be launched, false otherwise
      */
     private static boolean isStackTraceLikelyConflictive(@NonNull Throwable throwable, @NonNull Class<? extends Activity> activityClass) {
+        String process;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("/proc/self/cmdline"));
+            process = br.readLine().trim();
+            br.close();
+        } catch (IOException e) {
+            process = null;
+        }
+
+        if (process != null && process.endsWith(":error_activity")) {
+            //Error happened in the error activity process - conflictive, so use default handler
+            return true;
+        }
+
         do {
             StackTraceElement[] stackTrace = throwable.getStackTrace();
             for (StackTraceElement element : stackTrace) {
-                if ((element.getClassName().equals("android.app.ActivityThread") && element.getMethodName().equals("handleBindApplication")) || element.getClassName().equals(activityClass.getName())) {
+                if (element.getClassName().equals("android.app.ActivityThread") && element.getMethodName().equals("handleBindApplication")) {
                     return true;
                 }
             }
