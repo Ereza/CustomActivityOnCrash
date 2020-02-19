@@ -9,11 +9,17 @@ android {
         minSdkVersion 14
         targetSdkVersion 29
         versionCode 11
-        versionName "2.2.1-SNAPSHOT"
+        versionName "2.3.0"
     }
 }
 
-apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+ext {
+    PUBLISH_GROUP_ID = 'cat.ereza'
+    PUBLISH_ARTIFACT_ID = 'customactivityoncrash'
+    PUBLISH_VERSION = android.defaultConfig.versionName
+}
+
+apply from: "publish-mavencentral.gradle"
 
 dependencies {
     api 'androidx.appcompat:appcompat:1.1.0'
