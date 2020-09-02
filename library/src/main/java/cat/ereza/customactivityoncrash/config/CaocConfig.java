@@ -51,6 +51,7 @@ public class CaocConfig implements Serializable {
     private Integer errorDrawable = null;
     private Class<? extends Activity> errorActivityClass = null;
     private Class<? extends Activity> restartActivityClass = null;
+    private CustomActivityOnCrash.CustomCrashDataCollector customCrashDataCollector = null;
     private CustomActivityOnCrash.EventListener eventListener = null;
 
     @BackgroundMode
@@ -130,6 +131,15 @@ public class CaocConfig implements Serializable {
     }
 
     @Nullable
+    public CustomActivityOnCrash.CustomCrashDataCollector getCustomCrashDataCollector() {
+        return customCrashDataCollector;
+    }
+
+    public void setCustomCrashDataCollector(@Nullable CustomActivityOnCrash.CustomCrashDataCollector collector) {
+        this.customCrashDataCollector = collector;
+    }
+
+    @Nullable
     public Class<? extends Activity> getRestartActivityClass() {
         return restartActivityClass;
     }
@@ -165,6 +175,7 @@ public class CaocConfig implements Serializable {
             config.minTimeBetweenCrashesMs = currentConfig.minTimeBetweenCrashesMs;
             config.errorDrawable = currentConfig.errorDrawable;
             config.errorActivityClass = currentConfig.errorActivityClass;
+            config.customCrashDataCollector = currentConfig.customCrashDataCollector;
             config.restartActivityClass = currentConfig.restartActivityClass;
             config.eventListener = currentConfig.eventListener;
 
@@ -281,6 +292,23 @@ public class CaocConfig implements Serializable {
         @NonNull
         public Builder errorActivity(@Nullable Class<? extends Activity> errorActivityClass) {
             config.errorActivityClass = errorActivityClass;
+            return this;
+        }
+
+        /**
+         * Sets the custom error data collector class to launch when a crash occurs.
+         * If null, the default error activity will be used.
+         *
+         * @param collector The data collector.
+         * @throws IllegalArgumentException if the collector is an inner or anonymous class
+         */
+        @NonNull
+        public Builder customCrashDataCollector(@Nullable CustomActivityOnCrash.CustomCrashDataCollector collector) {
+            if (collector != null && collector.getClass().getEnclosingClass() != null && !Modifier.isStatic(collector.getClass().getModifiers())) {
+                throw new IllegalArgumentException("The event listener cannot be an inner or anonymous class, because it will need to be serialized. Change it to a class of its own, or make it a static inner class.");
+            } else {
+                config.customCrashDataCollector = collector;
+            }
             return this;
         }
 

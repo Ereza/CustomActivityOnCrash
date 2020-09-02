@@ -59,6 +59,7 @@ public final class CustomActivityOnCrash {
 
     //Extras passed to the error activity
     private static final String EXTRA_CONFIG = "cat.ereza.customactivityoncrash.EXTRA_CONFIG";
+    private static final String EXTRA_CUSTOM_CRASH_DATA = "cat.ereza.customactivityoncrash.EXTRA_CUSTOM_CRASH_DATA";
     private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
     private static final String EXTRA_ACTIVITY_LOG = "cat.ereza.customactivityoncrash.EXTRA_ACTIVITY_LOG";
 
@@ -140,6 +141,12 @@ public final class CustomActivityOnCrash {
                                             || (lastActivityCreatedTimestamp >= new Date().getTime() - TIME_TO_CONSIDER_FOREGROUND_MS)) {
 
                                         final Intent intent = new Intent(application, errorActivityClass);
+
+                                        CustomCrashDataCollector collector = config.getCustomCrashDataCollector();
+                                        if (collector != null) {
+                                            intent.putExtra(EXTRA_CUSTOM_CRASH_DATA, collector.onCrash(intent));
+                                        }
+
                                         StringWriter sw = new StringWriter();
                                         PrintWriter pw = new PrintWriter(sw);
                                         throwable.printStackTrace(pw);
@@ -277,6 +284,17 @@ public final class CustomActivityOnCrash {
     }
 
     /**
+     * Given an Intent, returns the custom collector trace extra from it.
+     *
+     * @param intent The Intent. Must not be null.
+     * @return The custom collector trace, or null if not provided.
+     */
+    @Nullable
+    public static String getCustomCrashDataFromIntent(@NonNull Intent intent) {
+        return intent.getStringExtra(CustomActivityOnCrash.EXTRA_CUSTOM_CRASH_DATA);
+    }
+
+    /**
      * Given an Intent, returns the config extra from it.
      *
      * @param intent The Intent. Must not be null.
@@ -347,6 +365,13 @@ public final class CustomActivityOnCrash {
             errorDetails += "\nUser actions: \n";
             errorDetails += activityLog;
         }
+
+        String customTrace = getCustomCrashDataFromIntent(intent);
+        if (customTrace != null) {
+            errorDetails += "\nCustom trace: \n";
+            errorDetails += customTrace;
+        }
+
         return errorDetails;
     }
 
@@ -719,5 +744,12 @@ public final class CustomActivityOnCrash {
         void onRestartAppFromErrorActivity();
 
         void onCloseAppFromErrorActivity();
+    }
+
+    /**
+     * Interface to be called to register a custom crash data collector
+     */
+    public interface CustomCrashDataCollector extends Serializable {
+        String onCrash(Intent intent);
     }
 }
