@@ -102,9 +102,6 @@ public final class CustomActivityOnCrash {
                 if (oldHandler != null && oldHandler.getClass().getName().startsWith(CAOC_HANDLER_PACKAGE_NAME)) {
                     Log.e(TAG, "CustomActivityOnCrash was already installed, doing nothing!");
                 } else {
-                    if (oldHandler != null && !oldHandler.getClass().getName().startsWith(DEFAULT_HANDLER_PACKAGE_NAME)) {
-                        Log.e(TAG, "IMPORTANT WARNING! You already have an UncaughtExceptionHandler, are you sure this is correct? If you use a custom UncaughtExceptionHandler, you must initialize it AFTER CustomActivityOnCrash! Installing anyway, but your original handler will not be called.");
-                    }
 
                     application = (Application) context.getApplicationContext();
 
@@ -175,6 +172,10 @@ public final class CustomActivityOnCrash {
                                             config.getEventListener().onLaunchErrorActivity();
                                         }
                                         application.startActivity(intent);
+                                        if (oldHandler != null) {
+                                            oldHandler.uncaughtException(thread, throwable);
+                                        }
+                                        killCurrentProcess();
                                     } else if (config.getBackgroundMode() == CaocConfig.BACKGROUND_MODE_CRASH) {
                                         if (oldHandler != null) {
                                             oldHandler.uncaughtException(thread, throwable);
@@ -190,6 +191,9 @@ public final class CustomActivityOnCrash {
                                     //See: https://github.com/ACRA/acra/issues/42
                                     lastActivity.finish();
                                     lastActivityCreated.clear();
+                                }
+                                if (oldHandler != null) {
+                                    oldHandler.uncaughtException(thread, throwable);
                                 }
                                 killCurrentProcess();
                             } else if (oldHandler != null) {
