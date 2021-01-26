@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -47,8 +46,6 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import cat.ereza.customactivityoncrash.activity.DefaultErrorActivity;
 import cat.ereza.customactivityoncrash.config.CaocConfig;
@@ -321,7 +318,7 @@ public final class CustomActivityOnCrash {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
         //Get build date
-        String buildDateAsString = getBuildDateAsString(context, dateFormat);
+        String buildDateAsString = getBuildDateAsString(dateFormat);
 
         //Get app version
         String versionName = getVersionName(context);
@@ -464,26 +461,12 @@ public final class CustomActivityOnCrash {
     /**
      * INTERNAL method that returns the build date of the current APK as a string, or null if unable to determine it.
      *
-     * @param context    A valid context. Must not be null.
      * @param dateFormat DateFormat to use to convert from Date to String
      * @return The formatted date, or "Unknown" if unable to determine it.
      */
     @Nullable
-    private static String getBuildDateAsString(@NonNull Context context, @NonNull DateFormat dateFormat) {
-        long buildDate;
-        try {
-            ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
-            ZipFile zf = new ZipFile(ai.sourceDir);
-
-            //If this failed, try with the old zip method
-            ZipEntry ze = zf.getEntry("classes.dex");
-            buildDate = ze.getTime();
-
-
-            zf.close();
-        } catch (Exception e) {
-            buildDate = 0;
-        }
+    private static String getBuildDateAsString(@NonNull DateFormat dateFormat) {
+        long buildDate = Long.parseLong(BuildConfig.BUILD_TIME);
 
         if (buildDate > 312764400000L) {
             return dateFormat.format(new Date(buildDate));
