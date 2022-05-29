@@ -296,23 +296,6 @@ public class CaocConfig implements Serializable {
         }
 
         /**
-         * Sets the custom error data collector class to launch when a crash occurs.
-         * If null, the default error activity will be used.
-         *
-         * @param collector The data collector.
-         * @throws IllegalArgumentException if the collector is an inner or anonymous class
-         */
-        @NonNull
-        public Builder customCrashDataCollector(@Nullable CustomActivityOnCrash.CustomCrashDataCollector collector) {
-            if (collector != null && collector.getClass().getEnclosingClass() != null && !Modifier.isStatic(collector.getClass().getModifiers())) {
-                throw new IllegalArgumentException("The event listener cannot be an inner or anonymous class, because it will need to be serialized. Change it to a class of its own, or make it a static inner class.");
-            } else {
-                config.customCrashDataCollector = collector;
-            }
-            return this;
-        }
-
-        /**
          * Sets the main activity class that the error activity must launch when a crash occurs.
          * If not set or set to null, the default launch activity will be used.
          * If your app has no launch activities and this is not set, the default error activity will close instead.
@@ -337,6 +320,23 @@ public class CaocConfig implements Serializable {
                 throw new IllegalArgumentException("The event listener cannot be an inner or anonymous class, because it will need to be serialized. Change it to a class of its own, or make it a static inner class.");
             } else {
                 config.eventListener = eventListener;
+            }
+            return this;
+        }
+
+        /**
+         * Sets the custom data collector class to invoke when a crash occurs.
+         * If not set or set to null, no custom data will be collected.
+         *
+         * @param collector The custom data collector.
+         * @throws IllegalArgumentException if the collector is an inner or anonymous class
+         */
+        @NonNull
+        public Builder customCrashDataCollector(@Nullable CustomActivityOnCrash.CustomCrashDataCollector collector) {
+            if (collector != null && collector.getClass().getEnclosingClass() != null && !Modifier.isStatic(collector.getClass().getModifiers())) {
+                throw new IllegalArgumentException("The custom data collector cannot be an inner or anonymous class, because it will need to be serialized. Change it to a class of its own, or make it a static inner class.");
+            } else {
+                config.customCrashDataCollector = collector;
             }
             return this;
         }

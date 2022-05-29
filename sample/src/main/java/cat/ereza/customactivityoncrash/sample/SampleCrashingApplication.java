@@ -73,7 +73,10 @@ public class SampleCrashingApplication extends Application {
 //                .errorActivity(CustomErrorActivity.class)
                 //This sets a EventListener to be notified of events regarding the error activity,
                 //so you can, for example, report them to Google Analytics.
-//                .eventListener(new CustomEventListener())
+//                .eventListener(new MyCustomEventListener())
+                //This sets a CustomCrashDataCollector that is invoked when a crash occurs. This allows you to add more
+                //data to the error details.
+//                .customCrashDataCollector(new MyCustomCrashDataCollector())
                 .apply();
 
         //Initialize your other error handler as normal.
@@ -85,7 +88,7 @@ public class SampleCrashingApplication extends Application {
         //enable alsoReportToAndroidFramework=true when initializing it or CustomActivityOnCrash will not work.
     }
 
-    private static class CustomEventListener implements CustomActivityOnCrash.EventListener {
+    private static class MyCustomEventListener implements CustomActivityOnCrash.EventListener {
         @Override
         public void onLaunchErrorActivity() {
             Log.i(TAG, "onLaunchErrorActivity()");
@@ -99,6 +102,13 @@ public class SampleCrashingApplication extends Application {
         @Override
         public void onCloseAppFromErrorActivity() {
             Log.i(TAG, "onCloseAppFromErrorActivity()");
+        }
+    }
+
+    private static class MyCustomCrashDataCollector implements CustomActivityOnCrash.CustomCrashDataCollector {
+        @Override
+        public String onCrash() {
+            return "This is additional data that will be shown in the error details.";
         }
     }
 }

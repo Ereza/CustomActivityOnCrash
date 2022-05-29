@@ -59,9 +59,9 @@ public final class CustomActivityOnCrash {
 
     //Extras passed to the error activity
     private static final String EXTRA_CONFIG = "cat.ereza.customactivityoncrash.EXTRA_CONFIG";
-    private static final String EXTRA_CUSTOM_CRASH_DATA = "cat.ereza.customactivityoncrash.EXTRA_CUSTOM_CRASH_DATA";
     private static final String EXTRA_STACK_TRACE = "cat.ereza.customactivityoncrash.EXTRA_STACK_TRACE";
     private static final String EXTRA_ACTIVITY_LOG = "cat.ereza.customactivityoncrash.EXTRA_ACTIVITY_LOG";
+    private static final String EXTRA_CUSTOM_CRASH_DATA = "cat.ereza.customactivityoncrash.EXTRA_CUSTOM_CRASH_DATA";
 
     //General constants
     private static final String INTENT_ACTION_ERROR_ACTIVITY = "cat.ereza.customactivityoncrash.ERROR";
@@ -154,11 +154,15 @@ public final class CustomActivityOnCrash {
                                     }
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
 
-                                        CustomCrashDataCollector collector = config.getCustomCrashDataCollector();
-                                        if (collector != null) {
-                                            intent.putExtra(EXTRA_CUSTOM_CRASH_DATA, collector.onCrash(intent));
+                                    CustomCrashDataCollector collector = config.getCustomCrashDataCollector();
+                                    if (collector != null) {
+                                        try {
+                                            intent.putExtra(EXTRA_CUSTOM_CRASH_DATA, collector.onCrash());
+                                        } catch (Throwable t) {
+                                            Log.e(TAG, "An unknown error occurred while invoking the custom crash data collector's onCrash. Please check your implementation.", t);
                                         }
-                                  
+                                    }
+
                                     if (config.isTrackActivities()) {
                                         StringBuilder activityLogStringBuilder = new StringBuilder();
                                         while (!activityLog.isEmpty()) {
@@ -284,7 +288,7 @@ public final class CustomActivityOnCrash {
     }
 
     /**
-     * Given an Intent, returns the custom collector trace extra from it.
+     * Given an Intent, returns the custom crash data extra from it.
      *
      * @param intent The Intent. Must not be null.
      * @return The custom collector trace, or null if not provided.
@@ -366,10 +370,10 @@ public final class CustomActivityOnCrash {
             errorDetails += activityLog;
         }
 
-        String customTrace = getCustomCrashDataFromIntent(intent);
-        if (customTrace != null) {
-            errorDetails += "\nCustom trace: \n";
-            errorDetails += customTrace;
+        String customCrashData = getCustomCrashDataFromIntent(intent);
+        if (customCrashData != null) {
+            errorDetails += "\nAdditional data: \n";
+            errorDetails += customCrashData;
         }
 
         return errorDetails;
@@ -755,9 +759,9 @@ public final class CustomActivityOnCrash {
     }
 
     /**
-     * Interface to be called to register a custom crash data collector
+     * Interface to be called to collect additional crash data when a crash occurs.
      */
     public interface CustomCrashDataCollector extends Serializable {
-        String onCrash(Intent intent);
+        String onCrash();
     }
 }
