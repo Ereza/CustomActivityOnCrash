@@ -17,7 +17,6 @@
 package cat.ereza.customactivityoncrash.sample.activity;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -68,19 +67,9 @@ public class CustomErrorActivity extends AppCompatActivity {
 
         if (config.isShowRestartButton() && config.getRestartActivityClass() != null) {
             restartButton.setText(R.string.restart_app);
-            restartButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CustomActivityOnCrash.restartApplication(CustomErrorActivity.this, config);
-                }
-            });
+            restartButton.setOnClickListener(v -> CustomActivityOnCrash.restartApplication(CustomErrorActivity.this, config));
         } else {
-            restartButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CustomActivityOnCrash.closeApplication(CustomErrorActivity.this, config);
-                }
-            });
+            restartButton.setOnClickListener(v -> CustomActivityOnCrash.closeApplication(CustomErrorActivity.this, config));
         }
     }
 }

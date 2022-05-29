@@ -77,9 +77,12 @@ public class SampleCrashingApplication extends Application {
                 .apply();
 
         //Initialize your other error handler as normal.
-        //i.e., ACRA.init(this);
-        //or Fabric.with(this, new Crashlytics());
-        //If you use ACRA, remember to enable alsoReportToAndroidFramework!
+
+        //If you want to use Firebase Crashlytics, you *MUST* call FirebaseApp.initializeApp(this); here.
+        //If you do not call it, you will not get Crashlytics reports.
+
+        //If you want to use ACRA, please initialize it HERE instead of attachBaseContext. You *MUST* also
+        //enable alsoReportToAndroidFramework=true when initializing it or CustomActivityOnCrash will not work.
     }
 
     private static class CustomEventListener implements CustomActivityOnCrash.EventListener {

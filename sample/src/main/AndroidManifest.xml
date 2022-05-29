@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="cat.ereza.customactivityoncrash.sample">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:name="cat.ereza.customactivityoncrash.sample.SampleCrashingApplication"
@@ -12,7 +11,7 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
         <activity
             android:name="cat.ereza.customactivityoncrash.sample.activity.MainActivity"
-            android:label="@string/app_name">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -27,7 +26,7 @@
             android:process=":error_activity">
             <!-- You can also use this instead of using CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class); -->
             <!--<intent-filter>-->
-                <!--<action android:name="cat.ereza.customactivityoncrash.ERROR" />-->
+            <!--<action android:name="cat.ereza.customactivityoncrash.ERROR" />-->
             <!--</intent-filter>-->
         </activity>
     </application>
