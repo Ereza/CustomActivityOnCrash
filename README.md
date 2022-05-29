@@ -17,11 +17,11 @@ dependencies {
 
 ...and you are done!
 
-**You can combine this library with other crash handlers such as Crashlytics or ACRA.**
+**You can combine this library with other crash handlers such as Firebase Crashlytics or ACRA.**
 
-If you are using Crashlytics, there's nothing to do, just use it normally.
+If you are using Firebase Crashlytics, you **must** call `FirebaseApp.initializeApp(this);` inside `onCreate` in your `Application` class.
 
-If you are using ACRA, you should initialize it inside `Application.onCreate` instead of `Application.attachBaseContext`, and enable `alsoReportToAndroidFramework`, otherwise, it will not work.
+If you are using ACRA, you **must** initialize it inside `onCreate` in your `Application` class, instead of `attachBaseContext`, and enable `alsoReportToAndroidFramework`, otherwise, CustomActivityOnCrash will not work.
 
 ### Try it
 
@@ -54,6 +54,8 @@ public void onCreate() {
         .errorActivity(YourCustomErrorActivity.class) //default: null (default error activity)
         .eventListener(new YourCustomEventListener()) //default: null
         .apply();
+
+    //If you use Firebase Crashlytics or ACRA, please initialize them here as explained above.
 }
 ```
 

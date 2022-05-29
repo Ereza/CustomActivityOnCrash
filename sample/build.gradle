@@ -1,15 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 32
 
     defaultConfig {
-        applicationId "cat.ereza.customactivityoncrash.sample"
-        minSdkVersion 14
-        targetSdkVersion 29
+        minSdkVersion 16
+        targetSdkVersion 32
         versionCode 12
-        versionName "2.3.1-SNAPSHOT"
+        versionName "2.4.0-SNAPSHOT"
     }
     buildTypes {
         debug {
@@ -21,6 +19,7 @@ android {
             proguardFiles 'proguard-rules.pro'
         }
     }
+    namespace 'cat.ereza.customactivityoncrash.sample'
 }
 
 dependencies {
