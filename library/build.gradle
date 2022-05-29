@@ -14,7 +14,7 @@ android {
 ext {
     PUBLISH_GROUP_ID = 'cat.ereza'
     PUBLISH_ARTIFACT_ID = 'customactivityoncrash'
-    PUBLISH_VERSION = '2.4.0-SNAPSHOT'
+    PUBLISH_VERSION = '2.4.0'
 }
 
 apply from: "publish-mavencentral.gradle"

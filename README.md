@@ -11,7 +11,7 @@ This library allows launching a custom activity when the app crashes, instead of
 Add the following dependency to your build.gradle:
 ```gradle
 dependencies {
-    compile 'cat.ereza:customactivityoncrash:2.3.0'
+    implementation 'cat.ereza:customactivityoncrash:2.4.0'
 }
 ```
 

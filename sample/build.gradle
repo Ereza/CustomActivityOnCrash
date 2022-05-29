@@ -7,7 +7,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 32
         versionCode 12
-        versionName "2.4.0-SNAPSHOT"
+        versionName "2.4.0"
     }
     buildTypes {
         debug {
